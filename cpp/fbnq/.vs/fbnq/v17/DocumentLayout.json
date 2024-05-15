@@ -1,0 +1,41 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\code\\cpp\\fbnq\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{6BB791F9-5BE3-487E-94D0-A7A198831F9C}|fbnq.vcxproj|D:\\code\\cpp\\fbnq\\fbnq.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{6BB791F9-5BE3-487E-94D0-A7A198831F9C}|fbnq.vcxproj|solutionrelative:fbnq.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{cce594b6-0c39-4442-ba28-10c64ac7e89f}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "fbnq.cpp",
+              "DocumentMoniker": "D:\\code\\cpp\\fbnq\\fbnq.cpp",
+              "RelativeDocumentMoniker": "fbnq.cpp",
+              "ToolTip": "D:\\code\\cpp\\fbnq\\fbnq.cpp",
+              "RelativeToolTip": "fbnq.cpp",
+              "ViewState": "AQIAAAkAAAAAAAAAAADwvwQAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2024-04-19T14:48:41.664Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
