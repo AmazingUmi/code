@@ -19,7 +19,7 @@ function call_Bellhop_surface(ETOPO,WOA18,envfil, freq, SD, timeIdx, latitude, l
 
 
 model = 'BELLHOP';
-titleEnv = 'Acoustic Calculation HHH';
+titleEnv = ['Acoustic Calculation ',envfil];
 % 区间两端点经纬度
 coordS.lat = latitude(1);   coordS.lon = longitude(1);
 coordE.lat = latitude(2);   coordE.lon = longitude(2);
@@ -73,7 +73,7 @@ Bdry.Bot.HS.betaI = 0;              % 海底横波衰减
 Pos.s.z = SD;                       % 声源深度
 Pos.r.z = 0:zi:Zmax;                % 接收深度/m
 
-% Pos.r.z = 500;
+% Pos.r.z = 5550;
 
 
 
