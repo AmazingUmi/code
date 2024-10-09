@@ -24,7 +24,7 @@ for ifreq = 1: length(freqvec)
             speed = [ssp_end 1568.69 1664.50 1591.08 1569.42 1587 1562.01];
             layer_depth = [0 0.467 0.967 1.462 1.958 2.463 3.268];
             rho_D = [1 1.52 1.72 1.63 1.58 1.60 1.57];
-            alpha_p = [0 alpha_b * zeors(1, length(rho_D)-1)];
+            alpha_p = [0 alpha_b * zeros(1, length(rho_D)-1)];
         case 'SCS-4'
             speed = [ssp_end 1609.87 1591.64 1589.51 1552.50];
             layer_depth = [0 0.468 0.962 1.465 2.158];

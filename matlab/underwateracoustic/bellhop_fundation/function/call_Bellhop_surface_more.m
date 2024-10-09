@@ -71,14 +71,14 @@ Bdry.Bot.HS.alphaI = 0;             % 海底纵波衰减
 Bdry.Bot.HS.betaI = 0;              % 海底横波衰减
 
 Pos.s.z = SD;                       % 声源深度
-Pos.r.z = 0:zi:Zmax;                % 接收深度/m
+% Pos.r.z = 0:zi:Zmax;                % 接收深度/m
 
-% Pos.r.z = 5550;
+Pos.r.z = 50;
 
 
 
-Pos.r.range = bathm.r(1):ri:rmax;  % 接收距离/km
-
+% Pos.r.range = bathm.r(1):ri:rmax;  % 接收距离/km
+Pos.r.range = 10
 % Rmax = max(abs(bathm.r));
 
 % Beam.RunType = 'IB~';
