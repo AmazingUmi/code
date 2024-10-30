@@ -1,4 +1,4 @@
-function call_Bellhop_surface(ETOPO,WOA18,envfil, freq, SD, timeIdx, latitude, longitude, R, azi, sourceRange, rmax,ri,zi, run_type, top_option,bottom_option, beam_option, alpha1,alpha2)
+function call_Bellhop_surface_more(ETOPO,WOA18,envfil, freq, SD, RD, timeIdx, coordS, coordE, SourceRange, ReceiveRange, rmax, ri, zi, run_type, top_option,bottom_option, beam_option, alpha1,alpha2)
 %% 将输入参数写入环境文件中
 % ETOPO:    地形数据集
 % WOA18:    声速剖面数据集
@@ -20,22 +20,21 @@ function call_Bellhop_surface(ETOPO,WOA18,envfil, freq, SD, timeIdx, latitude, l
 
 model = 'BELLHOP';
 titleEnv = ['Acoustic Calculation ',envfil];
-% 区间两端点经纬度
-coordS.lat = latitude(1);   coordS.lon = longitude(1);
-coordE.lat = latitude(2);   coordE.lon = longitude(2);
+
 % [coordS, coordE, R, azi] = coord_proc(coordS, coordE, R, azi);  % R:区间长度   azi：终点相对于起点的方位
 
-if sourceRange < 0 || sourceRange > rmax
+if SourceRange < 0 || SourceRange > rmax
     error("The range of source is beyond the range of coordinate.");
 end
 
 % Get bathymetry for *.bty and ssp_raw for *.env
-N = max(rmax+1, 2);    % N:默认以1km的间隔将区间划分网格需要的网格点数，至少两个点，
+N = max(rmax+1, 2);    % N:默认以1km的间隔将区间划分网格需要的网格点数，至少两个点
+
 % 将两端点连线等间距划分成N个网格点，lat,lon为网格点的经纬度坐标，用于后续插值
 lat = linspace(coordS.lat, coordE.lat, N);  
 lon = linspace(coordS.lon, coordE.lon, N);
 
-bathm.r = linspace(0,rmax,N) - sourceRange;    % .bty地形文件的距离参数
+bathm.r = linspace(0,rmax,N) - SourceRange;    % .bty地形文件的距离参数
 [bathm.d, ssp_raw, SSProf] = get_env(ETOPO,WOA18,lat,lon,timeIdx);
 
 Zmax = ceil(max(bathm.d));  % 区间上实际的最大海深
@@ -48,8 +47,8 @@ if MeanDep>Zmax
 end
 
 SSP.NMedia = 1;                                 % 媒质层数
-SSP.N = [0];                                    % 深度网格数
-SSP.sigma = [0];                                %   
+SSP.N = 0;                                    % 深度网格数
+SSP.sigma = 0;                                %   
 SSP.depth = [0, ssp_raw(end,1)];                % 海水层最大深度
 SSP.raw(1).z = ssp_raw(:,1)';                   % 深度
 SSP.raw(1).alphaR = ssp_raw(:,2)';              % 纵波声速
@@ -70,28 +69,35 @@ Bdry.Bot.HS.rho = 1;                % 海底密度
 Bdry.Bot.HS.alphaI = 0;             % 海底纵波衰减
 Bdry.Bot.HS.betaI = 0;              % 海底横波衰减
 
-Pos.s.z = SD;                       % 声源深度
-% Pos.r.z = 0:zi:Zmax;                % 接收深度/m
+Pos.s.z = SD;  % 声源深度
 
-Pos.r.z = 50;
+ % 接收深度/m
+if zi == 0;
+    Pos.r.z = RD;
+else
+    Pos.r.z = 0:zi:Zmax;               
+end
 
 
 
-% Pos.r.range = bathm.r(1):ri:rmax;  % 接收距离/km
-Pos.r.range = 10
+
+if ReceiveRange == 0
+    Pos.r.range = bathm.r(1):ri:rmax;  % 接收距离/km
+else
+    Pos.r.range = ReceiveRange;
+end
 % Rmax = max(abs(bathm.r));
 
-% Beam.RunType = 'IB~';
 Beam.RunType = run_type;
 Beam.Nbeams = 0;
-if sourceRange == 0 
+if SourceRange == 0 
     % 声源位于区间起点时
     if exist('alpha1','var') && exist('alpha2','var')
         Beam.alpha = [alpha1,alpha2];       % 设置为指定声源发射开角
     else
         Beam.alpha = [-90,90];          % 默认设置为180度发射开角
     end
-elseif sourceRange == rmax
+elseif SourceRange == rmax
     Beam.alpha = [90,270];
 else
     Beam.alpha = [-90,270];
@@ -108,6 +114,7 @@ Beam.Box.r = rmax+1;        % 计算最大距离，要大于设置的最大接�
 write_env(envfil, model, titleEnv, freq, SSP, Bdry, Pos, Beam, [], rmax);   % 将参数写入env文件
 write_bty(envfil, "'LS'" ,bathm);       % 设置海底地形.bty文件
 write_ssp(envfil, bathm.r, SSProf.c);   % 设置不同距离上的声速剖面集合.ssp文件
+
 % bellhop(envfil);
 
 % [ PlotTitle, PlotType, freqVec, freq0, atten, Pos_, pressure ] = read_shd( [envfil, '.shd'] );

@@ -101,7 +101,7 @@ switch FileType
          freqdiff = abs( freqVec - freq );
          [ ~, ifreq ] = min( freqdiff );
          % extract the appropriate source index
-         pressure = pressure( ifreq, :, :, : );
+         pressure = pressure( ifreq, 1, :, : );
       end
       
    case 'asc' % ascii format
@@ -109,7 +109,7 @@ switch FileType
       
    case 'grnmat'   % Green's function mat file
       load( filename )
-      Pos.r.range = Pos.r.range';   % make it a column vector to match read_shd_bin
+      Pos.r.r = Pos.r.r';   % make it a column vector to match read_shd_bin
 
       % has a specific frequency been given?
       if ~isnan( freq )

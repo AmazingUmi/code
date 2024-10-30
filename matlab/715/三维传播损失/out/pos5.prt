@@ -1,0 +1,214 @@
+ BELLHOP/BELLHOP3D
+
+ BELLHOP- Acoustic Calculation pos5                                              
+ frequency =   100.0     Hz
+
+ Dummy parameter NMedia =            1
+
+     C-linear approximation to SSP
+     Attenuation units: dB/mkHz
+     THORP volume attenuation added
+     FILE used for reflection loss
+
+ Depth =    1449.00 m
+
+ Sound speed profile:
+      z         alphaR      betaR     rho        alphaI     betaI
+     (m)         (m/s)      (m/s)   (g/cm^3)      (m/s)     (m/s)
+
+      0.00      1529.61      0.00     1.00       0.0000    0.0000
+      5.00      1529.70      0.00     1.00       0.0000    0.0000
+     10.00      1529.81      0.00     1.00       0.0000    0.0000
+     15.00      1529.88      0.00     1.00       0.0000    0.0000
+     20.00      1529.82      0.00     1.00       0.0000    0.0000
+     25.00      1529.92      0.00     1.00       0.0000    0.0000
+     30.00      1530.05      0.00     1.00       0.0000    0.0000
+     35.00      1530.15      0.00     1.00       0.0000    0.0000
+     40.00      1530.24      0.00     1.00       0.0000    0.0000
+     45.00      1530.35      0.00     1.00       0.0000    0.0000
+     50.00      1530.32      0.00     1.00       0.0000    0.0000
+     55.00      1530.22      0.00     1.00       0.0000    0.0000
+     60.00      1530.30      0.00     1.00       0.0000    0.0000
+     65.00      1530.34      0.00     1.00       0.0000    0.0000
+     70.00      1530.09      0.00     1.00       0.0000    0.0000
+     75.00      1529.79      0.00     1.00       0.0000    0.0000
+     80.00      1529.50      0.00     1.00       0.0000    0.0000
+     85.00      1529.27      0.00     1.00       0.0000    0.0000
+     90.00      1528.95      0.00     1.00       0.0000    0.0000
+     95.00      1528.50      0.00     1.00       0.0000    0.0000
+    100.00      1528.24      0.00     1.00       0.0000    0.0000
+    125.00      1524.34      0.00     1.00       0.0000    0.0000
+    150.00      1520.27      0.00     1.00       0.0000    0.0000
+    175.00      1516.07      0.00     1.00       0.0000    0.0000
+    200.00      1512.67      0.00     1.00       0.0000    0.0000
+    225.00      1509.33      0.00     1.00       0.0000    0.0000
+    250.00      1505.28      0.00     1.00       0.0000    0.0000
+    275.00      1502.73      0.00     1.00       0.0000    0.0000
+    300.00      1500.38      0.00     1.00       0.0000    0.0000
+    325.00      1498.44      0.00     1.00       0.0000    0.0000
+    350.00      1496.36      0.00     1.00       0.0000    0.0000
+    375.00      1495.09      0.00     1.00       0.0000    0.0000
+    400.00      1494.11      0.00     1.00       0.0000    0.0000
+    425.00      1493.20      0.00     1.00       0.0000    0.0000
+    450.00      1492.35      0.00     1.00       0.0000    0.0000
+    475.00      1491.72      0.00     1.00       0.0000    0.0000
+    500.00      1490.96      0.00     1.00       0.0000    0.0000
+    550.00      1489.53      0.00     1.00       0.0000    0.0000
+    600.00      1488.44      0.00     1.00       0.0000    0.0000
+    650.00      1487.83      0.00     1.00       0.0000    0.0000
+    700.00      1487.14      0.00     1.00       0.0000    0.0000
+    750.00      1486.46      0.00     1.00       0.0000    0.0000
+    800.00      1485.99      0.00     1.00       0.0000    0.0000
+    850.00      1485.21      0.00     1.00       0.0000    0.0000
+   1449.00      1495.39      0.00     1.00       0.0000    0.0000
+
+                                 ( RMS roughness =   0.00     )
+     Bathymetry file selected
+     FILE used for reflection loss
+
+ __________________________________________________________________________
+
+    Number of Source   z-coordinates, Sz =            1
+    Source   z-coordinates, Sz (m)
+                 80.0000    
+
+
+ __________________________________________________________________________
+
+    Number of Receiver z-coordinates, Rz =            1
+    Receiver z-coordinates, Rz (m)
+                 80.0000    
+
+
+ __________________________________________________________________________
+
+    Number of Receiver r-coordinates, Rr =          101
+    Receiver r-coordinates, Rr (km)
+                 0.00000      0.500000       1.00000       1.50000    
+   2.00000       2.50000       3.00000       3.50000       4.00000    
+   4.50000    
+          ... 
+   50.0000    
+
+
+ Incoherent TL calculation
+ Geometric gaussian beams in Cartesian coordinates
+ Point source (cylindrical coordinates)
+ Rectilinear receiver grid: Receivers at Rr( : ) x Rz( : )
+ __________________________________________________________________________
+
+    Number of beams in elevation   =         1084
+    Beam take-off angles (degrees)
+  -90.0000      -89.8338      -89.6676      -89.5014      -89.3352    
+  -89.1690      -89.0028      -88.8366      -88.6704      -88.5042    
+          ... 
+   90.0000    
+
+ __________________________________________________________________________
+
+
+ Step length,       deltas =   0.000     m
+
+ Maximum ray depth, Box%z  =   1949.     m
+ Maximum ray range, Box%r  =   51.00    km
+ No beam shift in effect
+
+ __________________________________________________________________________
+
+ Using bottom-bathymetry file
+ Piecewise linear interpolation
+ Number of bathymetry points =           51
+
+ Short format (bathymetry only)
+  Range (km)  Depth (m)
+   0.00      0.145E+04
+   1.00      0.143E+04
+   2.00      0.142E+04
+   3.00      0.141E+04
+   4.00      0.140E+04
+   5.00      0.139E+04
+   6.00      0.137E+04
+   7.00      0.136E+04
+   8.00      0.136E+04
+   9.00      0.135E+04
+   10.0      0.133E+04
+   11.0      0.132E+04
+   12.0      0.130E+04
+   13.0      0.128E+04
+   14.0      0.126E+04
+   15.0      0.124E+04
+   16.0      0.122E+04
+   17.0      0.121E+04
+   18.0      0.120E+04
+   50.0       647.    
+ __________________________________________________________________________
+
+ Using tabulated bottom reflection coef.
+ Number of points in bottom reflection coefficient =           91
+ __________________________________________________________________________
+
+ Using tabulated top    reflection coef.
+ Number of points in top reflection coefficient =           91
+
+ Step length,       deltas =   144.9     m (automatically selected)
+
+Tracing beam       1    -90.00
+
+ Geometric Gaussian beams                
+ halfwidth  =    1678.3332266257494     
+ epsilonOpt =                (0.0000000000000000,884924578.80167449)
+ EpsMult    =    1.0000000000000000     
+
+Tracing beam      22    -86.51
+Tracing beam      43    -83.02
+Tracing beam      64    -79.53
+Tracing beam      85    -76.04
+Tracing beam     106    -72.55
+Tracing beam     127    -69.06
+Tracing beam     148    -65.57
+Tracing beam     169    -62.08
+Tracing beam     190    -58.59
+Tracing beam     211    -55.10
+Tracing beam     232    -51.61
+Tracing beam     253    -48.12
+Tracing beam     274    -44.63
+Tracing beam     295    -41.14
+Tracing beam     316    -37.65
+Tracing beam     337    -34.16
+Tracing beam     358    -30.66
+Tracing beam     379    -27.17
+Tracing beam     400    -23.68
+Tracing beam     421    -20.19
+Tracing beam     442    -16.70
+Tracing beam     463    -13.21
+Tracing beam     484     -9.72
+Tracing beam     505     -6.23
+Tracing beam     526     -2.74
+Tracing beam     547      0.75
+Tracing beam     568      4.24
+Tracing beam     589      7.73
+Tracing beam     610     11.22
+Tracing beam     631     14.71
+Tracing beam     652     18.20
+Tracing beam     673     21.69
+Tracing beam     694     25.18
+Tracing beam     715     28.67
+Tracing beam     736     32.16
+Tracing beam     757     35.65
+Tracing beam     778     39.14
+Tracing beam     799     42.63
+Tracing beam     820     46.12
+Tracing beam     841     49.61
+Tracing beam     862     53.10
+Tracing beam     883     56.59
+Tracing beam     904     60.08
+Tracing beam     925     63.57
+Tracing beam     946     67.06
+Tracing beam     967     70.55
+Tracing beam     988     74.04
+Tracing beam    1009     77.53
+Tracing beam    1030     81.02
+Tracing beam    1051     84.52
+Tracing beam    1072     88.01
+
+ CPU Time =       0.219    s

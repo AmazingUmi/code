@@ -22,9 +22,9 @@ atten     = fscanf( fid, '%f', 1 );
 
 freqVec     = fscanf( fid, '%f', Nfreq );
 Pos.theta   = fscanf( fid, '%f', Ntheta );
-Pos.s.depth = fscanf( fid, '%f', Nsd );
-Pos.r.depth = fscanf( fid, '%f', Nrd );
-Pos.r.range = fscanf( fid, '%f', Nrr );
+Pos.s.z = fscanf( fid, '%f', Nsd );
+Pos.r.z = fscanf( fid, '%f', Nrd );
+Pos.r.r = fscanf( fid, '%f', Nrr );
 
 isd = 1;
 for ii = 1:isd
