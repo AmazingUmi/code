@@ -5,17 +5,17 @@ function write_ssp(filename, rkm, SSP)
 % SSP:      不同距离上的声速剖面集合
 
 % 按正负的最大距离设置
-if abs(rkm(1)) < rkm(end)
-    rkm = [-rkm(end),rkm];
-    SSP = [SSP(:,1),SSP];
-elseif abs(rkm(1)) > rkm(end)
-    rkm = [rkm, abs(rkm(1))];
-    SSP = [SSP,SSP(:,end)];
-end
-
-% 稍微扩大ssp的范围，以保证它包含Box的范围
-rkm(end) = rkm(end) + 1;
-rkm(1) = rkm(1) - 1;
+% if abs(rkm(1)) < rkm(end)
+%     rkm = [-rkm(end),rkm];
+%     SSP = [SSP(:,1),SSP];
+% elseif abs(rkm(1)) > rkm(end)
+%     rkm = [rkm, abs(rkm(1))];
+%     SSP = [SSP,SSP(:,end)];
+% end
+% 
+% % 稍微扩大ssp的范围，以保证它包含Box的范围
+% rkm(end) = rkm(end) + 1;
+% rkm(1) = rkm(1) - 1;
 
 Npts = length( rkm );
 fid = fopen( [filename,'.ssp'], 'wt' );

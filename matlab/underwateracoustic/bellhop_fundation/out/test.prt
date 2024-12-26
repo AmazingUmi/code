@@ -13,8 +13,7 @@
  Depth =    4453.00 m
 
  Sound speed profile:
-      z         alphaR      betaR     rho        alphaI     betaI
-     (m)         (m/s)      (m/s)   (g/cm^3)      (m/s)     (m/s)
+   z (m)     alphaR (m/s)   betaR  rho (g/cm^3)  alphaI     betaI
 
       0.00      1538.08      0.00     1.00       0.0000    0.0000
       5.00      1538.13      0.00     1.00       0.0000    0.0000
@@ -113,43 +112,41 @@
 
  __________________________________________________________________________
 
-    Number of Source   z-coordinates, Sz =            1
-    Source   z-coordinates, Sz (m)
-                 80.0000    
+ Number of Source   depths, Sz =            1
+ Source   depths, Sz (m)
+   80.0000    
 
 
  __________________________________________________________________________
 
-    Number of Receiver z-coordinates, Rz =          223
-    Receiver z-coordinates, Rz (m)
-                 0.00000       20.0000       40.0000       60.0000    
-   80.0000       100.000       120.000       140.000       160.000    
-   180.000    
+ Number of Receiver depths, Rz =          223
+ Receiver depths, Rz (m)
+   0.00000       20.0000       40.0000       60.0000       80.0000    
+   100.000       120.000       140.000       160.000       180.000    
           ... 
    4440.00    
 
 
  __________________________________________________________________________
 
-    Number of Receiver r-coordinates, Rr =         2001
-    Receiver r-coordinates, Rr (km)
-                 0.00000      0.100000E-01  0.200000E-01  0.300000E-01
-  0.400000E-01  0.500000E-01  0.600000E-01  0.700000E-01  0.800000E-01
-  0.900000E-01
+ Number of Receiver ranges, Rr =         2001
+ Receiver ranges, Rr (km)
+   0.00000      0.100000E-01  0.200000E-01  0.300000E-01  0.400000E-01
+  0.500000E-01  0.600000E-01  0.700000E-01  0.800000E-01  0.900000E-01
           ... 
    20.0000    
 
 
- Ray trace run
+ Arrivals calculation, ASCII  file output
  Geometric hat beams in Cartesian coordinates
  Point source (cylindrical coordinates)
  Rectilinear receiver grid: Receivers at Rr( : ) x Rz( : )
  __________________________________________________________________________
 
-    Number of beams in elevation   =           50
-    Beam take-off angles (degrees)
-  -90.0000      -86.3265      -82.6531      -78.9796      -75.3061    
-  -71.6327      -67.9592      -64.2857      -60.6122      -56.9388    
+ Number of beams in elevation   =          300
+ Beam take-off angles (degrees)
+  -90.0000      -89.3980      -88.7960      -88.1940      -87.5920    
+  -86.9900      -86.3880      -85.7860      -85.1839      -84.5819    
           ... 
    90.0000    
 
@@ -189,7 +186,6 @@
    16.0      0.445E+04
    17.0      0.445E+04
    18.0      0.445E+04
-   20.0      0.444E+04
  __________________________________________________________________________
 
  Using tabulated bottom reflection coef.
@@ -201,55 +197,63 @@
 
  Step length,       deltas =   445.3     m (automatically selected)
 
-Tracing beam       1    -90.00
-Tracing beam       2    -86.33
-Tracing beam       3    -82.65
-Tracing beam       4    -78.98
-Tracing beam       5    -75.31
-Tracing beam       6    -71.63
-Tracing beam       7    -67.96
-Tracing beam       8    -64.29
-Tracing beam       9    -60.61
-Tracing beam      10    -56.94
-Tracing beam      11    -53.27
-Tracing beam      12    -49.59
-Tracing beam      13    -45.92
-Tracing beam      14    -42.24
-Tracing beam      15    -38.57
-Tracing beam      16    -34.90
-Tracing beam      17    -31.22
-Tracing beam      18    -27.55
-Tracing beam      19    -23.88
-Tracing beam      20    -20.20
-Tracing beam      21    -16.53
-Tracing beam      22    -12.86
-Tracing beam      23     -9.18
-Tracing beam      24     -5.51
-Tracing beam      25     -1.84
-Tracing beam      26      1.84
-Tracing beam      27      5.51
-Tracing beam      28      9.18
-Tracing beam      29     12.86
-Tracing beam      30     16.53
-Tracing beam      31     20.20
-Tracing beam      32     23.88
-Tracing beam      33     27.55
-Tracing beam      34     31.22
-Tracing beam      35     34.90
-Tracing beam      36     38.57
-Tracing beam      37     42.24
-Tracing beam      38     45.92
-Tracing beam      39     49.59
-Tracing beam      40     53.27
-Tracing beam      41     56.94
-Tracing beam      42     60.61
-Tracing beam      43     64.29
-Tracing beam      44     67.96
-Tracing beam      45     71.63
-Tracing beam      46     75.31
-Tracing beam      47     78.98
-Tracing beam      48     82.65
-Tracing beam      49     86.33
-Tracing beam      50     90.00
+ ( Maximum # of arrivals =           44 )
 
- CPU Time =       0.312E-01s
+Tracing beam       1    -90.00
+
+ Geometric hat beams                     
+ halfwidth  =    925.18609955553040     
+ epsilonOpt =  (  0.0000000000000000     ,  134455346.18370992     )
+ EpsMult    =    1.0000000000000000     
+
+Tracing beam       7    -86.39
+Tracing beam      13    -82.78
+Tracing beam      19    -79.16
+Tracing beam      25    -75.55
+Tracing beam      31    -71.94
+Tracing beam      37    -68.33
+Tracing beam      43    -64.72
+Tracing beam      49    -61.10
+Tracing beam      55    -57.49
+Tracing beam      61    -53.88
+Tracing beam      67    -50.27
+Tracing beam      73    -46.66
+Tracing beam      79    -43.04
+Tracing beam      85    -39.43
+Tracing beam      91    -35.82
+Tracing beam      97    -32.21
+Tracing beam     103    -28.60
+Tracing beam     109    -24.98
+Tracing beam     115    -21.37
+Tracing beam     121    -17.76
+Tracing beam     127    -14.15
+Tracing beam     133    -10.54
+Tracing beam     139     -6.92
+Tracing beam     145     -3.31
+Tracing beam     151      0.30
+Tracing beam     157      3.91
+Tracing beam     163      7.53
+Tracing beam     169     11.14
+Tracing beam     175     14.75
+Tracing beam     181     18.36
+Tracing beam     187     21.97
+Tracing beam     193     25.59
+Tracing beam     199     29.20
+Tracing beam     205     32.81
+Tracing beam     211     36.42
+Tracing beam     217     40.03
+Tracing beam     223     43.65
+Tracing beam     229     47.26
+Tracing beam     235     50.87
+Tracing beam     241     54.48
+Tracing beam     247     58.09
+Tracing beam     253     61.71
+Tracing beam     259     65.32
+Tracing beam     265     68.93
+Tracing beam     271     72.54
+Tracing beam     277     76.15
+Tracing beam     283     79.77
+Tracing beam     289     83.38
+Tracing beam     295     86.99
+
+ CPU Time =        39.3    s
