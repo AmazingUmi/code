@@ -4,53 +4,32 @@
 #include <string>
 #include <omp.h>
 #include <cstdlib>
-#include <windows.h>  // For SetCurrentDirectory and GetModuleFileName
-#include <chrono>     // For high resolution timing
+#include <direct.h>  // 用于 _chdir 函数
+#include <chrono>    // 引入chrono库来计时
 
-// Get executable file path
-std::string getExecutablePath() {
-    char result[MAX_PATH];
-    if (GetModuleFileNameA(NULL, result, MAX_PATH) == 0) {
-        std::cerr << "无法获取可执行文件路径" << std::endl;
-        exit(1);
-    }
-    std::string path(result);
-    return path.substr(0, path.find_last_of("\\"));
-}
-
-// Change working directory
+// 改变当前工作目录
 void changeDirectory(const std::string& path) {
-    if (SetCurrentDirectoryA(path.c_str()) == 0) {
+    if (_chdir(path.c_str()) != 0) {
         std::cerr << "无法切换到目录: " << path << std::endl;
-        exit(1);
+        exit(1);  // 如果目录切换失败，程序退出
     }
 }
 
-// Execute bellhop command
-void runBellhop(const std::string& bellhopPath, const std::string& envFile) {
-    std::string command = bellhopPath + ".exe " + envFile; // Windows-specific command
-    int result = system(command.c_str());
-    if (result != 0) {
-        std::cerr << "Error executing command: " << command << std::endl;
-    }
+// 执行 bellhop.exe 命令
+void runBellhop(const std::string& envFile) {
+    std::string command = "E:/AcousticBase/at_2023_5_18/at/bin/bellhop.exe " + envFile;
+    system(command.c_str()); // 执行命令
 }
 
-int main(int argc, char* argv[]) {
-        // 设置控制台输出为UTF-8
-    SetConsoleOutputCP(CP_UTF8);
-    
-    if (argc < 2) {
-        std::cerr << "用法: " << argv[0] << " /path/to/env" << std::endl;
-        return 1;
-    }
+int main() {
+    // 开始计时
+    auto start_time = std::chrono::high_resolution_clock::now();  // 获取当前时间
 
-    std::string envDir = argv[1];
-    std::string exeDir = getExecutablePath(); // Get executable path
-    std::string bellhopPath = exeDir + "\\bellhop"; // Bellhop executable path for Windows
+    // 设置路径，可以根据需要修改
+    std::string path = "E:/Database/Enhanced_shipsEar/ENV1/envfilefolder";  // 设置你希望进入的路径
+    changeDirectory(path);
 
-    changeDirectory(envDir); // Change working directory to envDir
-
-    // Read environment file list
+    // 打开环境文件列表
     std::ifstream inputFile("env_files_list.txt");
     if (!inputFile) {
         std::cerr << "无法打开文件 env_files_list.txt" << std::endl;
@@ -59,23 +38,24 @@ int main(int argc, char* argv[]) {
 
     std::vector<std::string> envFiles;
     std::string line;
+
+    // 读取所有环境文件路径
     while (std::getline(inputFile, line)) {
         envFiles.push_back(line);
     }
 
-    // Start timing
-    auto start_time = std::chrono::high_resolution_clock::now();
-
-    // Parallel execution using OpenMP
-    #pragma omp parallel for
+    // 使用OpenMP并行调用bellhop.exe
+#pragma omp parallel for
     for (int i = 0; i < envFiles.size(); ++i) {
-        runBellhop(bellhopPath, envFiles[i]);
+        runBellhop(envFiles[i]);
     }
 
-    // End timing
-    auto end_time = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> duration = end_time - start_time;
-    std::cout << "程序运行时间: " << duration.count() << " 秒" << std::endl;
+    // 结束计时
+    auto end_time = std::chrono::high_resolution_clock::now();  // 获取当前时间
+    std::chrono::duration<double> duration = end_time - start_time;  // 计算时间差
+
+    // 打印运行时间
+    std::cout << "程序运行时间: " << duration.count() << "秒" << std::endl;
 
     return 0;
 }

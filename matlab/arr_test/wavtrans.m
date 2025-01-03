@@ -5,11 +5,11 @@ index = strfind(tmp.Filename, '\') ;
 pathstr = tmp.Filename(1:index(end)-1);
 cd(pathstr);
 addpath(pathstr);
-addpath('D:\code\matlab\underwateracoustic\bellhop_fundation\function');
+addpath('E:\Umicode\matlab\underwateracoustic\bellhop_fundation\function');
 clear pathstr;clear tmp;clear index;
 
 % 设置音频路径
-wav_folder = 'D:\database\shipsEar\shipsEar_classified_renamed_reclasified';
+wav_folder = 'E:\Database\shipsEar\shipsEar_classified_renamed_reclasified';
 wav_subfolders = {'A_Workvessels','B_Mobilityboats','C_passengers','D_giantvessels'};
 %环境噪声似乎不应该进行这样的扩展,'E_enviroments'
 
@@ -54,10 +54,11 @@ for j = 1:length(wav_subfolders)
             f = (0:T*fs/2/N);
             % figure
             % plot(f,signal_f_3);%绘制频谱图
-            [sig_peaks, sig_locs] = findpeaks(signal_f_3, 'SortStr', 'descend');  % 找到峰值
+            [sig_peaks, sig_locs] = sort(signal_f_3, 'descend');  % 找到峰值
             %过滤掉较小的幅值
-            sig_locs(sig_peaks<=0.9*sig_peaks(1)) = [];
-            sig_peaks(sig_peaks<=0.9*sig_peaks(1)) = [];
+            threshold = 0.95;
+            sig_locs(sig_peaks<=threshold*sig_peaks(1)) = [];
+            sig_peaks(sig_peaks<=threshold*sig_peaks(1)) = [];
             sig_freq = f(sig_locs);    % 主要频率 (取前两个为例)
             sig_amplitude = sig_peaks; % 对应的幅值
             sig_phase = signal_f_3_phi(sig_locs);
@@ -80,7 +81,7 @@ toc
 
 % 设置目标文件夹路径，可以通过修改这个，创造不同精细程度的数据集
 
-Signal_folder_path = 'D:\database\shipsEar\Shipsear_signal_folder';
+Signal_folder_path = 'E:\Database\shipsEar\Shipsear_signal_folder';
 % 获取源文件夹及其所有子文件夹中的.mat文件
 files = dir(fullfile(wav_folder, '**', '*.mat'));  % '**'表示递归查找子文件夹中的文件
 

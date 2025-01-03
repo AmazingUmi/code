@@ -36,7 +36,7 @@ for i = 1:N
     f = (0:T*fs/2/N);
     % figure
     % plot(f,signal_f_3);%绘制频谱图
-    [sig_peaks, sig_locs] = findpeaks(signal_f_3, 'SortStr', 'descend');  % 找到峰值
+    [sig_peaks, sig_locs] = sort(signal_f_3, 'descend');  % 找到峰值
     %过滤掉较小的幅值
     sig_locs(sig_peaks<=0.01*sig_peaks(1)) = [];
     sig_peaks(sig_peaks<=0.01*sig_peaks(1)) = [];
