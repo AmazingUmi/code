@@ -5,11 +5,11 @@ index = strfind(tmp.Filename, '\') ;
 pathstr = tmp.Filename(1:index(end)-1);
 cd(pathstr);
 addpath(pathstr);
-addpath('E:\Umicode\matlab\underwateracoustic\bellhop_fundation\function');
+addpath('D:\code\matlab\underwateracoustic\bellhop_fundation\function');
 clear pathstr;clear tmp;clear index;
 
 % 设置音频路径
-wav_folder = 'E:\Database\shipsEar\shipsEar_classified_renamed_reclasified';
+wav_folder = 'D:\database\shipsEar\shipsEar_classified_renamed_reclasified';
 wav_subfolders = {'A_Workvessels','B_Mobilityboats','C_passengers','D_giantvessels'};
 %环境噪声似乎不应该进行这样的扩展,'E_enviroments'
 
@@ -31,32 +31,46 @@ for j = 1:length(wav_subfolders)
         T = L/fs;
         t = (0:L-1)*dt; % 信号时间
 
-        %切分信号
-        N = 10; %分段段数
-        Nsignal = [];  Ndelay = [];
+        %切分信号,依据信号长度进行修正
+        cut_Tlength = 2;%单位为秒（s）
+        if mod(T, cut_Tlength)>=1.1
+            N = ceil(T/cut_Tlength); %分段段数
+            Nplus = 1;
+        else
+            N = floor(T/cut_Tlength); %分段段数
+            Nplus = 0;
+        end
+        Nsignal = [];  Ndelay = []; cut_length = cut_Tlength * fs;
         for i = 1:N
+
             % Nt(i,:) = (i-1)/N*T:dt:i/N*T-dt;
-            Nsignal(i,:) = signal((i-1)/N*L+1:i/N*L);
-            Ndelay(i) = (i-1)/N*T;
+            if Nplus == 1 && i == N
+                Nsignal(i,:) = [signal((i-1)*cut_length+1:end);zeros(cut_length-length(signal((i-1)*cut_length+1:end)),1)];
+            else
+                Nsignal(i,:) = signal((i-1)*cut_length+1:i*cut_length);
+            end
+            Ndelay(i) = (i-1)*cut_length;
         end
 
         %分别对分段信号进行分解，获取其主要频率分量
         Analy_freq = [];
+        Analyrecord = [];
         for i = 1:N
             mid_signal = Nsignal(i,:);
             signal_f = fft(mid_signal);  %此信号包含相位信息
-            signal_f_2 = signal_f(1:L/2/N+1);
-            signal_f_3 = 2*1/L*N*abs(signal_f_2); %信号幅值
-            signal_f_3_phi = atan(imag(signal_f_2)./real(signal_f_2));
+            signal_f_2 = signal_f(1:cut_length/2+1);
+            signal_f_3 = abs(signal_f_2)/cut_length; %信号幅值
+            signal_f_3(2:end-1) = 2*signal_f_3(2:end-1);
+            signal_f_3_phi = angle(signal_f_2);
             % signal_f(end+1) = signal_f(1);  %补充至频谱左右对称
             % signal_f_2 = 2*1/L*N*fftshift(abs(signal_f));
             % signal_f_3 = signal_f_2(L/2/N:end);
-            f = (0:T*fs/2/N);
-            % figure
-            % plot(f,signal_f_3);%绘制频谱图
+            f = (0:cut_length/2)/cut_length*fs;
+            figure
+            plot(f,signal_f_3);%绘制频谱图
             [sig_peaks, sig_locs] = sort(signal_f_3, 'descend');  % 找到峰值
             %过滤掉较小的幅值
-            threshold = 0.95;
+            threshold = 0.1;
             sig_locs(sig_peaks<=threshold*sig_peaks(1)) = [];
             sig_peaks(sig_peaks<=threshold*sig_peaks(1)) = [];
             sig_freq = f(sig_locs);    % 主要频率 (取前两个为例)
@@ -76,12 +90,12 @@ for j = 1:length(wav_subfolders)
 end
 Analy_freq_all_file = [wav_folder,'\Analy_freq_all.mat'];
 save(Analy_freq_all_file, 'Analy_freq_all')
-toc
+
 %% 将所有的信号数据.mat复制到同一个文件夹
 
 % 设置目标文件夹路径，可以通过修改这个，创造不同精细程度的数据集
 
-Signal_folder_path = 'E:\Database\shipsEar\Shipsear_signal_folder';
+Signal_folder_path = 'D:\database\shipsEar\Shipsear_signal_folder';
 % 获取源文件夹及其所有子文件夹中的.mat文件
 files = dir(fullfile(wav_folder, '**', '*.mat'));  % '**'表示递归查找子文件夹中的文件
 
@@ -100,3 +114,4 @@ for i = 1:length(files)
     % 显示复制的文件路径
     disp(['已复制文件: ', source_file, ' 到 ', target_file]);
 end
+toc

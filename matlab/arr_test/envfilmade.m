@@ -5,12 +5,12 @@ index = strfind(tmp.Filename, '\') ;
 pathstr = tmp.Filename(1:index(end)-1);
 cd(pathstr);
 addpath(pathstr);
-addpath('E:\Umicode\matlab\underwateracoustic\bellhop_fundation\function');
+addpath('D:\code\matlab\underwateracoustic\bellhop_fundation\function');
 clear pathstr;clear tmp;clear index;
 
 %% 设置环境路径
-ENVall_folder = 'E:\Database\Enhanced_shipsEar';
-Signal_folder = 'E:\Database\shipsEar\Shipsear_signal_folder';
+ENVall_folder = 'D:\database\Enhanced_shipsEar';%需要修正
+Signal_folder = 'D:\database\shipsEar\Shipsear_signal_folder';
 load([Signal_folder,'\Analy_freq_all.mat']);
 
 % 获取文件夹中的所有内容，筛选出所有子文件夹
@@ -64,7 +64,7 @@ end
 % 使用 tar + gzip 压缩
 cd(ENVall_folder);
 cd ..
-zipname = 'files';
+zipname = ['files',date];
 systemline = sprintf('tar -czf %s.tar.gz %s',zipname,'Enhanced_shipsEar');
 system(systemline);
 

@@ -5,11 +5,11 @@ index = strfind(tmp.Filename, '\') ;
 pathstr = tmp.Filename(1:index(end)-1);
 cd(pathstr);
 addpath(pathstr);
-addpath('E:\Umicode\matlab\underwateracoustic\bellhop_fundation\function');
+addpath('D:\code\matlab\underwateracoustic\bellhop_fundation\function');
 clear pathstr;clear tmp;clear index;
 %% 设置生成信号参数
-ENVall_folder = 'E:\Database\Enhanced_shipsEar';%需要修正
-Signal_folder = 'E:\Database\shipsEar\Shipsear_signal_folder';
+ENVall_folder = 'D:\database\Enhanced_shipsEar';%需要修正
+Signal_folder = 'D:\database\shipsEar\Shipsear_signal_folder';
 
 contents = dir(ENVall_folder);
 ENVall_subfolders = contents([contents.isdir] & ~ismember({contents.name}, {'.', '..'}));
@@ -65,7 +65,7 @@ for k = 1
 
             for n = 1:length(tar_freq)
                 %生成中间信号
-                mid_signal = tar_amp(n)*sin(2*pi*tar_freq(n)*mid_t+tar_pha(n));
+                mid_signal = tar_amp(n)*cos(2*pi*tar_freq(n)*mid_t+tar_pha(n));
                 %对中间信号进行时延幅值拓展
                 for m = 1:length(Arr_tmp(tar_f_loc(n)).Amp)
                     delay0 = Arr_tmp(tar_f_loc(n)).Delay;

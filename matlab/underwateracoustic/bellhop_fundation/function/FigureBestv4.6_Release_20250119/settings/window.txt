@@ -1,0 +1,5 @@
+%更改下方值可以控制FB窗口高度和宽度
+%请勿更改任何格式，只动等号后的内容
+Units=characters
+Height=50
+Width=100

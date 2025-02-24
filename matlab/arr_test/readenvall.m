@@ -5,10 +5,10 @@ index = strfind(tmp.Filename, '\') ;
 pathstr = tmp.Filename(1:index(end)-1);
 cd(pathstr);
 addpath(pathstr);
-addpath('E:\Umicode\matlab\underwateracoustic\bellhop_fundation\function');
+addpath('D:\code\matlab\underwateracoustic\bellhop_fundation\function');
 clear pathstr;clear tmp;clear index;
 %% 设置env文件相关参数
-ENVall_folder = 'E:\Database\Enhanced_shipsEar';%需要修正
+ENVall_folder = 'D:\database\Enhanced_shipsEar';%需要修正
 contents = dir(ENVall_folder);
 ENVall_subfolders = contents([contents.isdir] & ~ismember({contents.name}, {'.', '..'}));
 clear contents;

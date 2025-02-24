@@ -5,7 +5,7 @@ index = strfind(tmp.Filename, '\') ;
 pathstr = tmp.Filename(1:index(end)-1);
 cd(pathstr);
 addpath(pathstr);
-addpath('E:\Umicode\matlab\underwateracoustic\bellhop_fundation\function');
+addpath('D:\code\matlab\underwateracoustic\bellhop_fundation\function');
 clear pathstr;clear tmp;clear index;
 %%
 ENVall_folder = 'E:\Database\Enhanced_shipsEar';%需要修正
