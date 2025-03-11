@@ -8,21 +8,25 @@ addpath(pathstr);
 addpath('D:\code\matlab\underwateracoustic\bellhop_fundation\function');
 clear pathstr;clear tmp;clear index;
 %% 设置生成信号参数
-ENVall_folder = 'D:\database\Enhanced_shipsEar';%需要修正
+
+% ENVall_folder = 'D:\database\Enhanced_shipsEar';%需要修正
+
+ENVall_folder = 'D:\database\shipsEar\test2.26';%临时调试所用
+
 Signal_folder = 'D:\database\shipsEar\Shipsear_signal_folder';
 
 contents = dir(ENVall_folder);
 ENVall_subfolders = contents([contents.isdir] & ~ismember({contents.name}, {'.', '..'}));
 clear contents;
 sig_mat_files = dir(fullfile(Signal_folder, '*.mat'));
-sig_mat_files(18) = [];
+sig_mat_files(1) = [];
 
 % txtfilename = 'env_files_list.txt';
 load(fullfile(Signal_folder,'Analy_freq_all.mat'))
 
 %%
-%创建文件夹
-for j = 1:length(ENVall_subfolders)
+%创建文件夹  :length(ENVall_subfolders)
+for j = 1
     NewSig_foldername = fullfile(ENVall_folder,ENVall_subfolders(j).name,'Newsig');
     if ~exist(NewSig_foldername, 'dir')
         mkdir(NewSig_foldername); % 创建文件夹
@@ -31,55 +35,96 @@ for j = 1:length(ENVall_subfolders)
         fprintf('文件夹"%s"已存在。\n', NewSig_foldername);
     end
 end
-
+Amp_source = 5e4; % 160 dB 对应的声压幅值
 % for k = 1:length(ENVall_subfolders)
+
 for k = 1
+    
     load(fullfile(ENVall_folder,ENVall_subfolders(k).name,'ENV_ARR.mat'))
+    Arr_freq = round([ARR.freq],4);
     NewSig_foldername = fullfile(ENVall_folder,ENVall_subfolders(k).name,'Newsig');
-    idx = [];
-    Arr_tmp = [];
+    
+    
+    
     for j = 1:length(sig_mat_files)
+        tic
+
+        clear Analyrecord;
+        Arr_tmp = []; Analy_freq = []; idx = [];
+        maxdelay = []; mindelay = [];
+        tgsig_lth = []; tgt = []; tgsig = [];
+
+
         load(fullfile(Signal_folder,sig_mat_files(j).name))
-        NewSig_name = [NewSig_foldername,'\',sig_mat_files(j).name(1:end-4),sprintf('_new_%s.mat',num2str(k))];
-        Arr_freq = [ARR.freq];
-        [~, idx] = ismember(Arr_freq, Analy_freq);
-        idx = find(idx > 0);
-        Arr_tmp = ARR(idx);
+        NewSig_name = [NewSig_foldername,'\',sig_mat_files(j).name(1:end-4),sprintf('_new_ENV%s.mat',num2str(k))];
+        Analy_freq = round(Analy_freq,4);
+        [~, idx] = ismember(Analy_freq,Arr_freq);
+        Arr_tmp = ARR(idx);%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-        for i = 1:length(Analy_freq)
-
+        for i = 1:length(Arr_tmp)
             maxdelay(i) = max(Arr_tmp(i).Delay);     %记录最大时延
             mindelay(i) = min(Arr_tmp(i).Delay);     %记录最小时延
         end
         %问题在于信号时间过长，应该切割掉部分空白值
-        tgsig_lth = (max(maxdelay)-min(mindelay))*fs + length(t) + 1; %目标信号长度,最长时延-最短时延+原始信号长度+空白
-        tgt = (0:tgsig_lth-1)*dt; %目标信号时间序列
+        tgsig_lth = ceil(max(maxdelay)-min(mindelay) + max(Ndelay)+2.1)*fs; %目标信号长度,最长时延-最短时延+原始信号长度+空白
+        tgt = (0:tgsig_lth-1)/fs; %目标信号时间序列
         tgsig = 0*tgt; %目标信号初始化
         N = length(Analyrecord);
-        for i = 1:N
-            tar_freq = Analyrecord(i).freq;
+        mid_t = single((0:(Ndelay(2)-Ndelay(1))*fs-1)/fs);  %中间信号时间序列
+        mid_L = length(mid_t);
+
+        parfor i = 1:N
+            tar_freq = round(Analyrecord(i).freq,4)';
             tar_amp = Analyrecord(i).Amp;
             tar_pha = Analyrecord(i).phase;
-            [~, tar_f_loc] = ismember(tar_freq, Analy_freq);
-            mid_t = (0:floor(L/N)-1)*dt;  %中间信号时间序列
+            [~, tar_f_loc] = ismember(tar_freq, Arr_freq);
+            
+            % %不同频率的中间信号矩阵
+            % mid_signal = Amp_source*tar_amp(:).*cos(2*pi*tar_freq(:).*mid_t+tar_pha(:));
+
 
             for n = 1:length(tar_freq)
-                %生成中间信号
-                mid_signal = tar_amp(n)*cos(2*pi*tar_freq(n)*mid_t+tar_pha(n));
-                %对中间信号进行时延幅值拓展
-                for m = 1:length(Arr_tmp(tar_f_loc(n)).Amp)
-                    delay0 = Arr_tmp(tar_f_loc(n)).Delay;
-                    amp0 = Arr_tmp(tar_f_loc(n)).Amp;
-                    dsig = tgt*0;  %临时中间变量
-                    be = floor((delay0(m)-min(mindelay)+Ndelay(i))*fs)+1; %确定信号初始位置
-                    en = be+length(mid_t)-1; %确定信号结束位置
-                    dsig(be:en) = mid_signal;
-                    tgsig = tgsig+dsig*amp0(m);
+                dsig = []; Dsig = [];be = [];indices = [];row_idx = [];lin_idx =[];
+
+                delay0 = ARR(tar_f_loc(n)).Delay;
+                amp0 = ARR(tar_f_loc(n)).Amp';
+                num_paths = length(amp0);
+
+                
+                mid_signal = Amp_source*tar_amp(n).*cos(2*pi*tar_freq(n).*mid_t+tar_pha(n));
+                % dsig = amp0.*mid_signal(n,:);
+                dsig = amp0.*mid_signal;
+                Dsig = zeros(num_paths,length(tgt));
+                be = floor((delay0-min(mindelay)+Ndelay(i))*fs)+1; %确定信号初始位置
+
+                indices = zeros(num_paths, mid_L);
+                for p = 1:num_paths
+                    indices(p, :) = be(p):(be(p) + mid_L - 1);
                 end
+                row_idx = repmat((1:num_paths)', 1, mid_L);
+                lin_idx = sub2ind(size(Dsig), row_idx, indices);
+                %    进行替换操作
+                Dsig(lin_idx) = dsig;
+                tgsig = tgsig+sum(Dsig,1);
+
+                % en = be+length(mid_t)-1; %确定信号结束位置
+                % %替换中间信号
+                % for m = 1:length(num_paths)
+                %     Dsig = zeros(1,length(tgt));
+                %     Dsig(be(m):en(m)) = dsig(m,:);
+                %     tgsig = tgsig+Dsig;
+                % end
+                
             end
         end
+
+        v = 8; % 风速参数可独立设置
+        env_sig = generate_env_noise(fs, length(tgsig), v);
+        tgsig = tgsig+env_sig;
+
         save(NewSig_name,'tgsig','tgt','fs');
         disp(['信号已保存为: ', NewSig_name]);
+        toc
     end
 
 end
@@ -87,3 +132,5 @@ end
 %%
 
 % plot(tgt,tgsig)
+% figure
+% plot(tgt,env_sig)

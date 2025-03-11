@@ -9,8 +9,8 @@ from datetime import datetime
 import time  # 导入 time 模块
 
 # 设置路径
-train_dir = "D:/database/shipsEar/shipsEar_reclassified/train_origin/"  # 训练集的路径
-val_dir = "D:/database/shipsEar/shipsEar_reclassified/test_origin/"  # 验证集的路径
+train_dir = "D:/database/shipsEar/shipsEar_reclassified/train_origin_pic/"  # 训练集的路径
+val_dir = "D:/database/shipsEar/shipsEar_reclassified/val_origin_pic/"  # 验证集的路径
 batch_size = 64
 num_epochs = 16
 learning_rate = 0.001

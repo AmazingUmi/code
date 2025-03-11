@@ -17,7 +17,7 @@ void changeDirectory(const std::string& path) {
 
 // 执行 bellhop.exe 命令
 void runBellhop(const std::string& envFile) {
-    std::string command = "E:/AcousticBase/at_2023_5_18/at/bin/bellhop.exe " + envFile;
+    std::string command = "D:/database/at_2023_5_18/at/bin/bellhop.exe " + envFile;
     system(command.c_str()); // 执行命令
 }
 
@@ -26,7 +26,7 @@ int main() {
     auto start_time = std::chrono::high_resolution_clock::now();  // 获取当前时间
 
     // 设置路径，可以根据需要修改
-    std::string path = "E:/Database/Enhanced_shipsEar/ENV1/envfilefolder";  // 设置你希望进入的路径
+    std::string path = "D:/database/Enhanced_shipsEar/ENV1/envfilefolder";  // 设置你希望进入的路径
     changeDirectory(path);
 
     // 打开环境文件列表

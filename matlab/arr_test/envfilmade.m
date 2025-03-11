@@ -29,14 +29,16 @@ for j = 1:length(ENVall_subfolders)
     end
     cd(ENV_foldername)
 end
-
-%生成新的环境文件
-for j = 1%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+tic
+%生成新的环境文件:length(ENVall_subfolders)
+for j = 2%:length(ENVall_subfolders)%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     ENV_foldername = fullfile(ENVall_folder,ENVall_subfolders(j).name,'envfilefolder');
     cd(ENV_foldername)
-
+    fileList = dir('TEST_s*');
+    envfilename = [fileList(1).name(1:end-4),'.env'];
     newfilename = {};
-    envfilename = 'test.env';
+    
+    %改成parfor%%%%%%%%%%%%%%%%%%%%%
     for i = 1:length(Analy_freq_all)
         newfilename{i} = sprintf('test_%d', i);
         %修改循环中，环境文件里的频率
@@ -60,13 +62,28 @@ for j = 1%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     fclose(fileID);
 
 end
+toc
 %%
 % 使用 tar + gzip 压缩
 cd(ENVall_folder);
 cd ..
-zipname = ['files',date];
+
+tic
+zipname = ['ENVall_files_', datestr(now, 'yyyymmdd')];
 systemline = sprintf('tar -czf %s.tar.gz %s',zipname,'Enhanced_shipsEar');
 system(systemline);
+toc
 
+% tic
+% % 确保日期格式不含空格/特殊字符（例如：20231105）
+% zipname = ['ENV1_files_', datestr(now, 'yyyymmdd')];
+% % 强制指定7-Zip路径（注意转义反斜杠和空格）
+% sevenZipPath = '"C:\\Program Files\\7-Zip\\7z.exe"'; % 默认安装路径
+% % 核心修复：调整参数顺序 + 包裹所有路径
+% systemline = sprintf('%s a -mmt16 -tzip "%s.zip" "ENV1"', ... 
+%     sevenZipPath, zipname);
+% system(systemline);
+% toc
 
+%/public/home/amazingumi/temp/code/bellhop_parallel /public/home/amazingumi/temp/ENV1/envfilefolder
 % [ Arr, Pos ] = read_arrivals_asc([newfilename{i},'.arr']);

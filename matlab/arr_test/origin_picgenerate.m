@@ -9,29 +9,30 @@ addpath('D:\code\matlab\underwateracoustic\bellhop_fundation\function');
 clear pathstr;clear tmp;clear index;
 %% 
 %未切分音频地址
-test_folder_path = 'D:\database\shipsEar\shipsEar_reclassified\test_raw_wav';
+val_folder_path = 'D:\database\shipsEar\shipsEar_reclassified\val_raw_wav';
 train_folder_path = 'D:\database\shipsEar\shipsEar_reclassified\train_raw_wav';
 %输出的图片地址
-test_Pic_out_folder = 'D:\database\shipsEar\shipsEar_reclassified\test_origin';
-train_Pic_out_folder = 'D:\database\shipsEar\shipsEar_reclassified\train_origin';
+val_Pic_out_folder = 'D:\database\shipsEar\shipsEar_reclassified\val_origin_pic';
+train_Pic_out_folder = 'D:\database\shipsEar\shipsEar_reclassified\train_origin_pic';
 
-contents = dir(train_folder_path);
+contents = dir(val_folder_path);
 subfolders = contents([contents.isdir] & ~ismember({contents.name}, {'.', '..'}));
 clear contents;
 
 %% 纯mel谱图！！！！！！！！！！！！！！！！！！！！！！！！！！！！
 tic
 for j = 1:length(subfolders)
-    item_foldername = fullfile(train_folder_path,subfolders(j).name);
+    item_foldername = fullfile(val_folder_path,subfolders(j).name);
     contents = dir(item_foldername);
     item_Sig_info = contents(~[contents.isdir]);
     clear contents;
-    Pic_out_folder = fullfile(train_Pic_out_folder,subfolders(j).name);
+    Pic_out_folder = fullfile(val_Pic_out_folder,subfolders(j).name);
     if ~exist(Pic_out_folder, 'dir')
         mkdir(Pic_out_folder); % 创建图片输出文件夹
     end
 
     % :length(NewSig_info)
+    num_pic = 0;
     for i = 1:length(item_Sig_info)
         Sig_name = fullfile(item_foldername,item_Sig_info(i).name);
         [signal, fs] = audioread(Sig_name);
@@ -59,17 +60,17 @@ for j = 1:length(subfolders)
         end
         disp('meow');
 
-        parfor k = 1:length(segments(:,fs))
+        for k = 1:length(segments(:,fs))
+            num_pic = num_pic + 1;
             s = segments(k,:)';
             h=figure;
             melSpectrogram(s, fs,"NumBands",98);       % 绘制梅尔频谱图。
             axis off;    colorbar off;   colormap gray;
             set(gcf,'Position',[500 1000 98 98]);      set(gca,'Position',[0 0 1 1]);
             I = getimage(gcf);          %Convert plot to image (true color RGB matrix).
-            I1=mat2gray(I);
+            I1=flipud(mat2gray(I));
             J = imresize(I1, [98, 98]); %Resize image to resolution
-            filename1=fullfile(Pic_out_folder,sprintf('%s.png',num2str(k)));
-
+            filename1=fullfile(Pic_out_folder,sprintf('%s.png',num2str(num_pic)));
             imwrite(J, filename1, 'Compression','none');         %Save image to file
             close(h);
         end

@@ -1,4 +1,4 @@
-function call_Bellhop_surface_more(ETOPO,WOA18,envfil, freq, SD, RD, timeIdx, coordS, coordE, SourceRange, ReceiveRange, rmax, ri, zi, run_type, top_option,bottom_option, beam_option, alpha1,alpha2)
+function call_Bellhop_surface_more(ETOPO,WOA18,envfil, freq, SD, RD, timeIdx, coordS, coordE, SourceRange, rmax, ri, zi, run_type, top_option,bottom_option, beam_option, alpha1,alpha2)
 %% 将输入参数写入环境文件中
 % ETOPO:    地形数据集
 % WOA18:    声速剖面数据集
@@ -71,20 +71,18 @@ Bdry.Bot.HS.betaI = 0;              % 海底横波衰减
 
 Pos.s.z = SD;  % 声源深度
 
- % 接收深度/m
+% 接收深度/m
 if zi == 0;
     Pos.r.z = RD;
 else
     Pos.r.z = 0:zi:Zmax;               
 end
 
-
-
-
-if ReceiveRange == 0
-    Pos.r.range = bathm.r(1):ri:rmax;  % 接收距离/km
+% 接收距离/km
+if ri == 0
+    Pos.r.range = rmax;
 else
-    Pos.r.range = ReceiveRange;
+    Pos.r.range = bathm.r(1):ri:rmax;
 end
 % Rmax = max(abs(bathm.r));
 
