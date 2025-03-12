@@ -5,20 +5,19 @@ index = strfind(tmp.Filename, '\') ;
 pathstr = tmp.Filename(1:index(end)-1);
 cd(pathstr);
 addpath(pathstr);
-addpath('D:\code\matlab\underwateracoustic\bellhop_fundation\function');
-clear pathstr;clear tmp;clear index;
-%% 设置env文件相关参数
-ENVall_folder = 'D:\database\Enhanced_shipsEar';%需要修正
+addpath(fullfile(pathstr(1:end-9),'underwateracoustic\bellhop_fundation\function'));
+clear pathstr tmp index;
 
-ENVall_folder = 'D:\database\shipsEar\test2.26';%临时调试所用
-
+%% 设置环境路径
+ENVall_folder = 'D:\database\results\Enhanced_shipsEar';%临时调试所用
 contents = dir(ENVall_folder);
 ENVall_subfolders = contents([contents.isdir] & ~ismember({contents.name}, {'.', '..'}));
 clear contents;
 txtfilename = 'env_files_list.txt';
-%% 读取arr结果、筛选并保存  :length(ENVall_subfolders)
+
+%% 读取arr结果、筛选并保存  
 tic
-for j = 1
+for j = 1:length(ENVall_subfolders)
     newfilename = cellstr(readlines(fullfile(ENVall_folder,ENVall_subfolders(j).name,'envfilefolder',txtfilename)));
     newfilename(end) = [];
     ARR = [];
@@ -34,7 +33,7 @@ for j = 1
         phase0 = angle(Arr.A(idx));
 
         %需要设置门限，把过小幅值的声线过滤掉
-        threshold = 0.1;
+        threshold = 0.05;
         delay0(amp0<=threshold*max(amp0)) = [];
         phase0(amp0<=threshold*max(amp0)) = [];
         amp0(amp0<=threshold*max(amp0)) = [];  %要保证在最后一行

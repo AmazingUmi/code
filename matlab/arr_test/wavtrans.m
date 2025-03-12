@@ -5,10 +5,10 @@ index = strfind(tmp.Filename, '\') ;
 pathstr = tmp.Filename(1:index(end)-1);
 cd(pathstr);
 addpath(pathstr);
-addpath('D:\code\matlab\underwateracoustic\bellhop_fundation\function');
-clear pathstr;clear tmp;clear index;
+addpath(fullfile(pathstr(1:end-9),'underwateracoustic\bellhop_fundation\function'));
+clear pathstr tmp index;
 
-% 设置音频路径
+%% 设置音频路径
 wav_subfolders = {'Class A','Class B','Class C','Class D'};
 wav_folder_total = 'D:\database\shipsEar\shipsEar_reclassified';
 wav_folder{1} = 'train_raw_wav';%训练集
@@ -22,10 +22,9 @@ end
 
 %% 记录不同的音频共同的频率
 Analy_freq_all = [];
-threshold = 0.01;
+threshold = 0.05;
 tic
 for m = 1:2
-    % :length(wav_subfolders)
     for j = 1:length(wav_subfolders)   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % 获取当前子文件夹路径
         subfolder_path = fullfile(wav_folder_total,wav_folder{m}, wav_subfolders{j});

@@ -5,11 +5,10 @@ index = strfind(tmp.Filename, '\') ;
 pathstr = tmp.Filename(1:index(end)-1);
 cd(pathstr);
 addpath(pathstr);
-addpath('D:\code\matlab\underwateracoustic\bellhop_fundation\function');
-clear pathstr;clear tmp;clear index;
-%%
-ENVall_folder = 'D:\database\Enhanced_shipsEar';%需要修正
+addpath(fullfile(pathstr(1:end-9),'underwateracoustic\bellhop_fundation\function'));
+clear pathstr tmp index;
 
+%% 设置输入输出路径
 ENVall_folder = 'D:\database\shipsEar\test2.26';%临时调试所用
 
 Signal_folder = 'D:\database\shipsEar\Shipsear_signal_folder';
@@ -19,16 +18,14 @@ contents = dir(ENVall_folder);
 ENVall_subfolders = contents([contents.isdir] & ~ismember({contents.name}, {'.', '..'}));
 clear contents;
 
-% :length(ENVall_subfolders)
-sig_part = 1;
-
-for j = 1
+%% 绘制谱图
+for j = 1% : length(ENVall_subfolders)
     NewSig_foldername = fullfile(ENVall_folder,ENVall_subfolders(j).name,'Newsig');
     contents = dir(NewSig_foldername);
     NewSig_info = contents(~[contents.isdir]);
     clear contents;
-    % :length(NewSig_info)
-    for i = 1
+    
+    for i = 1% : length(NewSig_info)
         NewSig_name = fullfile(NewSig_foldername,NewSig_info(i).name);
         Pic_out_folder_class = fullfile(Pic_out_folder,NewSig_info(i).name(21));%需要争取获取输出路径
         load(NewSig_name)  %读取fs,tgt,tgsig
@@ -45,8 +42,6 @@ for j = 1
             segments = [segments; segment];
             start_idx = start_idx + overlap_length;
         end
-
-
         
         disp('meow');
         for k = 1:length(segments(:,fs))

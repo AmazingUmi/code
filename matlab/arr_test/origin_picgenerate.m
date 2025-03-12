@@ -5,9 +5,10 @@ index = strfind(tmp.Filename, '\') ;
 pathstr = tmp.Filename(1:index(end)-1);
 cd(pathstr);
 addpath(pathstr);
-addpath('D:\code\matlab\underwateracoustic\bellhop_fundation\function');
-clear pathstr;clear tmp;clear index;
-%% 
+addpath(fullfile(pathstr(1:end-9),'underwateracoustic\bellhop_fundation\function'));
+clear pathstr tmp index;
+
+%% 设置输入输出路径
 %未切分音频地址
 val_folder_path = 'D:\database\shipsEar\shipsEar_reclassified\val_raw_wav';
 train_folder_path = 'D:\database\shipsEar\shipsEar_reclassified\train_raw_wav';
@@ -19,7 +20,7 @@ contents = dir(val_folder_path);
 subfolders = contents([contents.isdir] & ~ismember({contents.name}, {'.', '..'}));
 clear contents;
 
-%% 纯mel谱图！！！！！！！！！！！！！！！！！！！！！！！！！！！！
+%% 纯mel谱图
 tic
 for j = 1:length(subfolders)
     item_foldername = fullfile(val_folder_path,subfolders(j).name);
