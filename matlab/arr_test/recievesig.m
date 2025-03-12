@@ -9,8 +9,8 @@ addpath(fullfile(pathstr(1:end-9),'underwateracoustic\bellhop_fundation\function
 clear pathstr tmp index;
 
 %% 设置环境路径
-ENVall_folder = 'D:\database\results\Enhanced_shipsEar';
-Signal_folder = 'D:\database\shipsEar\Shipsear_signal_folder';
+ENVall_folder = 'D:\users\lyy\database\Enhanced_shipsEar';
+Signal_folder = 'D:\users\lyy\database\shipsEar\Shipsear_signal_folder';
 load(fullfile(Signal_folder,'Analy_freq_all.mat'))
 
 contents = dir(ENVall_folder);
@@ -39,6 +39,7 @@ for k = 1:length(ENVall_subfolders)
     NewSig_foldername = fullfile(ENVall_folder,ENVall_subfolders(k).name,'Newsig');
     
     for j = 1:length(sig_mat_files)
+        tic
         clear Analyrecord;
         Arr_tmp = []; Analy_freq = []; idx = [];
         maxdelay = []; mindelay = [];
@@ -71,12 +72,12 @@ for k = 1:length(ENVall_subfolders)
             tar_pha = Analyrecord(i).phase;
             [~, tar_f_loc] = ismember(tar_freq, Arr_freq);
             num_tar = length(tar_freq);
-            %不同频率的中间信号矩阵
-            mid_signal = Amp_source*tar_amp(:).*cos(2*pi*tar_freq(:).*mid_t+tar_pha(:));
-            interval_tar = 35;
+            %不同频率的中间信号矩阵,由于内存占用过大,转移至子循环中
+            % mid_signal = Amp_source*tar_amp(:).*cos(2*pi*tar_freq(:).*mid_t+tar_pha(:));
+            interval_tar = 50;
 
             for n = 1:interval_tar:num_tar
-                
+                % tic
                 dsig = []; Dsig = []; be = [];
                 indices = []; row_idx = []; lin_idx =[];
                 num_int = 0;
@@ -84,11 +85,13 @@ for k = 1:length(ENVall_subfolders)
                     for int = 1:interval_tar
                         delay0 = ARR(tar_f_loc(n+int-1)).Delay;
                         amp0 = ARR(tar_f_loc(n+int-1)).Amp';
-
                         num_paths = length(amp0);
+                        %生成中间信号
+                        mid_signal = Amp_source*tar_amp(n+int-1).*cos(2*pi*tar_freq(n+int-1).*mid_t+tar_pha(n+int-1));
+                        dsig(num_int+1:num_int+num_paths , :) = amp0.*mid_signal;
 
                         be(num_int+1:num_int+num_paths) = floor((delay0-MINdelay+Ndelay(i))*fs)+1; %确定信号初始位置
-                        dsig(num_int+1:num_int+num_paths , :) = amp0.*mid_signal(n+int-1,:);
+                        % dsig(num_int+1:num_int+num_paths , :) = amp0.*mid_signal(n+int-1,:);
                         num_int = num_int + num_paths;
                     end
                 else
@@ -96,16 +99,18 @@ for k = 1:length(ENVall_subfolders)
                         delay0 = ARR(tar_f_loc(int)).Delay;
                         amp0 = ARR(tar_f_loc(int)).Amp';
                         num_paths = length(amp0);
+                        %生成中间信号
+                        mid_signal = Amp_source*tar_amp(int).*cos(2*pi*tar_freq(int).*mid_t+tar_pha(int));
+                        dsig(num_int+1:num_int+num_paths , :) = amp0.*mid_signal;
 
                         be(num_int+1:num_int+num_paths) = floor((delay0-MINdelay+Ndelay(i))*fs)+1; %确定信号初始位置
-                        dsig(num_int+1:num_int+num_paths , :) = amp0.*mid_signal(int,:);
+                        % dsig(num_int+1:num_int+num_paths , :) = amp0.*mid_signal(int,:);
                         num_int = num_int + num_paths;
                     end
                 end
                 num_disg = length(be);
 
-                % mid_signal = Amp_source*tar_amp(n).*cos(2*pi*tar_freq(n).*mid_t+tar_pha(n)); 
-                % dsig = amp0.*mid_signal;
+                
                 Dsig = zeros(num_disg,length(tgt));
                 indices = bsxfun(@plus, be(:), 0:mid_L-1);
 
@@ -114,7 +119,7 @@ for k = 1:length(ENVall_subfolders)
                 % 进行替换操作
                 Dsig(lin_idx) = dsig;
                 tgsig = tgsig+sum(Dsig,1);
-                
+                % toc
                 % obr = 1;
             end
             % obr = 2;
@@ -122,6 +127,7 @@ for k = 1:length(ENVall_subfolders)
 
         save(NewSig_name,'tgsig','tgt','fs');
         disp(['信号已保存为: ', NewSig_name]);
+        toc
     end
 
 end
