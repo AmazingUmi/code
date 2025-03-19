@@ -1,0 +1,12 @@
+2025-03-18 17:16:17,380 - Training started...
+2025-03-18 17:16:21,947 - Epoch 1/16, Training Loss: 0.3001
+2025-03-18 17:16:24,787 - Epoch 1/16, Validation Accuracy: 0.75
+2025-03-18 17:16:28,603 - Epoch 2/16, Training Loss: 0.0794
+2025-03-18 17:16:31,508 - Epoch 2/16, Validation Accuracy: 0.99
+2025-03-18 17:16:35,540 - Epoch 3/16, Training Loss: 0.0580
+2025-03-18 17:16:38,746 - Epoch 3/16, Validation Accuracy: 0.95
+2025-03-18 17:16:42,920 - Epoch 4/16, Training Loss: 0.0293
+2025-03-18 17:16:46,284 - Epoch 4/16, Validation Accuracy: 0.88
+2025-03-18 17:16:50,594 - Epoch 5/16, Training Loss: 0.0478
+2025-03-18 17:16:53,616 - Epoch 5/16, Validation Accuracy: 0.90
+2025-03-18 17:16:57,645 - Epoch 6/16, Training Loss: 0.0154

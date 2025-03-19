@@ -1,0 +1,35 @@
+2025-03-17 17:16:29,033 - Training started...
+2025-03-17 17:22:34,893 - Epoch 1/16, Training Loss: 0.2415
+2025-03-17 17:23:09,856 - Epoch 1/16, Validation Accuracy: 0.72
+2025-03-17 17:23:45,106 - Epoch 2/16, Training Loss: 0.0639
+2025-03-17 17:23:50,413 - Epoch 2/16, Validation Accuracy: 0.67
+2025-03-17 17:24:26,148 - Epoch 3/16, Training Loss: 0.0438
+2025-03-17 17:24:31,458 - Epoch 3/16, Validation Accuracy: 0.60
+2025-03-17 17:25:06,713 - Epoch 4/16, Training Loss: 0.0323
+2025-03-17 17:25:11,705 - Epoch 4/16, Validation Accuracy: 0.66
+2025-03-17 17:25:46,395 - Epoch 5/16, Training Loss: 0.0240
+2025-03-17 17:25:51,608 - Epoch 5/16, Validation Accuracy: 0.63
+2025-03-17 17:26:27,482 - Epoch 6/16, Training Loss: 0.0212
+2025-03-17 17:26:32,611 - Epoch 6/16, Validation Accuracy: 0.60
+2025-03-17 17:27:13,322 - Epoch 7/16, Training Loss: 0.0364
+2025-03-17 17:27:18,484 - Epoch 7/16, Validation Accuracy: 0.66
+2025-03-17 17:27:54,740 - Epoch 8/16, Training Loss: 0.0099
+2025-03-17 17:28:00,187 - Epoch 8/16, Validation Accuracy: 0.63
+2025-03-17 17:28:36,734 - Epoch 9/16, Training Loss: 0.0044
+2025-03-17 17:28:42,096 - Epoch 9/16, Validation Accuracy: 0.59
+2025-03-17 17:29:18,840 - Epoch 10/16, Training Loss: 0.0355
+2025-03-17 17:29:24,650 - Epoch 10/16, Validation Accuracy: 0.65
+2025-03-17 17:30:02,863 - Epoch 11/16, Training Loss: 0.0186
+2025-03-17 17:30:08,614 - Epoch 11/16, Validation Accuracy: 0.71
+2025-03-17 17:30:46,221 - Epoch 12/16, Training Loss: 0.0018
+2025-03-17 17:30:51,782 - Epoch 12/16, Validation Accuracy: 0.70
+2025-03-17 17:31:29,020 - Epoch 13/16, Training Loss: 0.0158
+2025-03-17 17:31:34,540 - Epoch 13/16, Validation Accuracy: 0.63
+2025-03-17 17:32:11,579 - Epoch 14/16, Training Loss: 0.0202
+2025-03-17 17:32:17,301 - Epoch 14/16, Validation Accuracy: 0.68
+2025-03-17 17:32:56,558 - Epoch 15/16, Training Loss: 0.0044
+2025-03-17 17:33:02,388 - Epoch 15/16, Validation Accuracy: 0.65
+2025-03-17 17:33:40,062 - Epoch 16/16, Training Loss: 0.0007
+2025-03-17 17:33:45,787 - Epoch 16/16, Validation Accuracy: 0.70
+2025-03-17 17:33:45,842 - Model saved to model.pth
+2025-03-17 17:33:45,842 - Training completed in 17 minutes and 16 seconds.

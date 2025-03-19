@@ -9,8 +9,8 @@ from datetime import datetime
 import time  # 导入 time 模块
 
 # 设置路径
-train_dir = "D:/database/shipsEar/shipsEar_reclassified/train_origin_pic/"  # 训练集的路径
-val_dir = "D:/database/shipsEar/shipsEar_reclassified/val_origin_pic/"  # 验证集的路径
+train_dir = "D:/database/shipsEar/shipsEar_reclassified/train_origin_pic_rgb"  # 训练集路径
+val_dir = "D:/database/shipsEar/shipsEar_reclassified/val_origin_pic_rgb/"  # 验证集路径
 batch_size = 64
 num_epochs = 16
 learning_rate = 0.001
@@ -56,7 +56,7 @@ if os.path.exists(model_save_path):
 
 # 定义损失函数和优化器
 criterion = nn.CrossEntropyLoss()
-optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+optimizer = optim.AdamW(model.parameters(), lr=learning_rate, weight_decay=1e-4)
 
 # 记录训练开始时间
 start_time = time.time()

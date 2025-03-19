@@ -1,62 +1,83 @@
 import os
 import torch
 from torch import nn, optim
-from torchvision import datasets, transforms, models
+from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 import logging
 from datetime import datetime
-import time  # 导入 time 模块
+import time
 
 # 设置路径
-train_dir = "D:/database/shipsEar/shipsEar_reclassified/train_origin_pic_rgb"  # 训练集路径
-val_dir = "D:/database/shipsEar/shipsEar_reclassified/val_origin_pic_rgb/"  # 验证集路径
+train_dir = "D:/database/shipsEar/NewSig_foldername_direct_0317/combine/train_origin_pic/"  # 训练集路径
+val_dir = "D:/database/shipsEar/NewSig_foldername_direct_0317/combine/val_origin_pic/"  # 验证集路径
 batch_size = 64
 num_epochs = 16
 learning_rate = 0.001
-num_classes = 5  # 修改为你的类别数量
+num_classes = 5  # 类别数
 model_save_path = "model.pth"
 
 # 获取当前时间戳，格式为：年-月-日_时-分-秒
 current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-
-# 设置日志记录，日志文件名带时间戳
 log_file = f"training_log_{current_time}.txt"
 logging.basicConfig(filename=log_file, level=logging.INFO,
-                    format='%(asctime)s - %(message)s')  # 加入时间戳格式
+                    format='%(asctime)s - %(message)s')
 logging.info("Training started...")
 
-# 数据预处理
+# 数据预处理：注意如果原始谱图为灰度图，这里使用 Grayscale 将其转换为 3 通道（复制同一数据）
 data_transforms = transforms.Compose([
     transforms.Resize((98, 98)),  # 调整图片大小
+    transforms.Grayscale(num_output_channels=3),  # 将灰度图转换为 3 通道
     transforms.ToTensor(),  # 转为张量
-    transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])  # 标准化
+    transforms.Normalize([0.485, 0.456, 0.406],  # 标准化参数（与预训练模型一致）
+                         [0.229, 0.224, 0.225])
 ])
 
 # 加载训练集和验证集
 train_dataset = datasets.ImageFolder(train_dir, transform=data_transforms)
 val_dataset = datasets.ImageFolder(val_dir, transform=data_transforms)
 
-# 创建数据加载器
 train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, pin_memory=True)
 val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, pin_memory=True)
 
-# 定义模型（改为 ResNet50）
-from torchvision.models import resnet50, ResNet50_Weights
 
-model = resnet50(weights=ResNet50_Weights.DEFAULT)
-model.fc = nn.Linear(model.fc.in_features, num_classes)  # 修改全连接层以适配类别数
-device = torch.device("cuda")
-model = model.to(device)
+# 定义自定义卷积神经网络
+class MyCNN(nn.Module):
+    def __init__(self, num_classes=5):
+        super(MyCNN, self).__init__()
+        # 第一层卷积：输入3通道，输出16个特征图，卷积核大小3，stride=1，padding=1保证尺寸不变
+        self.conv1 = nn.Conv2d(in_channels=3, out_channels=16, kernel_size=3, stride=1, padding=1)
+        # 第二层卷积：输入16通道，输出32个特征图
+        self.conv2 = nn.Conv2d(in_channels=16, out_channels=32, kernel_size=3, stride=1, padding=1)
+        # 池化层：2x2最大池化
+        self.pool = nn.MaxPool2d(kernel_size=2, stride=2)
+        # 经过两次池化后，98×98的图像尺寸将变为大约24×24
+        # 全连接层输入特征数：32 * 24 * 24
+        self.fc1 = nn.Linear(32 * 24 * 24, 128)
+        # 输出层
+        self.fc2 = nn.Linear(128, num_classes)
 
-# 如果模型已经存在，加载模型参数，设置 weights_only=True
-if os.path.exists(model_save_path):
-    model.load_state_dict(torch.load(model_save_path, weights_only=True))
-    logging.info(f"Model loaded from {model_save_path}")
+    def forward(self, x):
+        # 第一层卷积、ReLU激活、池化
+        x = self.pool(torch.relu(self.conv1(x)))
+        # 第二层卷积、ReLU激活、池化
+        x = self.pool(torch.relu(self.conv2(x)))
+        # 展平操作
+        x = x.view(x.size(0), -1)
+        # 全连接层和ReLU激活
+        x = torch.relu(self.fc1(x))
+        # 输出层
+        x = self.fc2(x)
+        return x
+
+
+# 选择设备
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+model = MyCNN(num_classes=num_classes).to(device)
 
 # 定义损失函数和优化器
 criterion = nn.CrossEntropyLoss()
-optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+optimizer = optim.AdamW(model.parameters(), lr=learning_rate, weight_decay=1e-4)
 
 # 记录训练开始时间
 start_time = time.time()
@@ -65,25 +86,18 @@ start_time = time.time()
 for epoch in range(num_epochs):
     model.train()
     running_loss = 0.0
-
-    # 训练进度条
     train_progress = tqdm(train_loader, desc=f"Epoch {epoch + 1}/{num_epochs} Training", unit="batch", leave=True)
     for inputs, labels in train_progress:
         inputs, labels = inputs.to(device), labels.to(device)
-
-        # 前向传播
+        optimizer.zero_grad()
         outputs = model(inputs)
         loss = criterion(outputs, labels)
-
-        # 反向传播和优化
-        optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-
         running_loss += loss.item()
 
-    # 记录训练日志
-    logging.info(f"Epoch {epoch + 1}/{num_epochs}, Training Loss: {running_loss / len(train_loader):.4f}")
+    avg_loss = running_loss / len(train_loader)
+    logging.info(f"Epoch {epoch + 1}/{num_epochs}, Training Loss: {avg_loss:.4f}")
 
     # 验证模型
     model.eval()
@@ -97,16 +111,14 @@ for epoch in range(num_epochs):
             _, preds = torch.max(outputs, 1)
             correct += (preds == labels).sum().item()
             total += labels.size(0)
-
-    # 记录验证日志
     val_accuracy = correct / total
     logging.info(f"Epoch {epoch + 1}/{num_epochs}, Validation Accuracy: {val_accuracy:.2f}")
 
-# 保存模型
+# 保存模型参数
 torch.save(model.state_dict(), model_save_path)
 logging.info(f"Model saved to {model_save_path}")
 
-# 计算训练时长
+# 记录训练时长
 end_time = time.time()
 elapsed_time = end_time - start_time
 logging.info(f"Training completed in {elapsed_time // 60:.0f} minutes and {elapsed_time % 60:.0f} seconds.")

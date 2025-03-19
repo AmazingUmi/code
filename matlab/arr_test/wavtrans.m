@@ -69,8 +69,8 @@ for m = 1:2
                 sig_freq = f(sig_locs);
                 sig_amplitude = sig_peaks;
                 sig_phase = signal_f_3_phi(sig_locs);
-                %滤除10Hz以下频率
-                freq_idx = sig_freq >= 10;
+                %滤除10Hz以下频率，以及fs/2以上的频率
+                freq_idx = (sig_freq >= 10) & (sig_freq <= fs/2);
                 sig_amplitude = sig_amplitude(freq_idx);
                 sig_freq = sig_freq(freq_idx);
                 sig_phase = sig_phase(freq_idx);

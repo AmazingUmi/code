@@ -1,0 +1,158 @@
+%% 初始化
+clear; close all; clc;
+tmp = matlab.desktop.editor.getActive;
+index = strfind(tmp.Filename, '\') ;
+pathstr = tmp.Filename(1:index(end)-1);
+cd(pathstr);
+addpath(pathstr);
+addpath(fullfile(pathstr(1:end-9),'underwateracoustic\bellhop_fundation\function'));
+clear pathstr tmp index;
+
+%% 设置输入输出路径
+%未切分音频地址
+val_folder_path = 'D:\database\shipsEar\shipsEar_reclassified\val_raw_wav';
+train_folder_path = 'D:\database\shipsEar\shipsEar_reclassified\train_raw_wav';
+%输出的图片地址
+val_Pic_out_folder = 'D:\database\shipsEar\shipsEar_reclassified\val_origin_pic_rgb';
+train_Pic_out_folder = 'D:\database\shipsEar\shipsEar_reclassified\train_origin_pic_rgb';
+
+contents = dir(val_folder_path);
+subfolders = contents([contents.isdir] & ~ismember({contents.name}, {'.', '..'}));
+clear contents;
+
+%% 纯mel谱图
+tic
+parfor j = 1:length(subfolders)
+    item_foldername = fullfile(val_folder_path,subfolders(j).name);
+    contents = dir(item_foldername);
+    item_Sig_info = contents(~[contents.isdir]);
+    Pic_out_folder = fullfile(train_Pic_out_folder,subfolders(j).name);
+    if ~exist(Pic_out_folder, 'dir')
+        mkdir(Pic_out_folder); % 创建图片输出文件夹
+    end
+
+    % :length(NewSig_info)
+    num_pic = 0;
+    for i = 1:length(item_Sig_info)
+        Sig_name = fullfile(item_foldername,item_Sig_info(i).name);
+        [signal, fs] = audioread(Sig_name);
+        signal = signal';
+        T = length(signal)/fs;
+        %初始化
+        segments = [];
+        segment_length = 1 * fs;
+        overlap_length = 0.5 * segment_length;
+        start_idx = 1;
+        % 分割信号
+        while start_idx + segment_length - 1 <= length(signal)
+            segment = signal(start_idx:start_idx + segment_length - 1);
+            segments = [segments; segment];
+            start_idx = start_idx + overlap_length;
+        end
+        % 处理剩余不足 1 秒的部分
+        if start_idx < length(signal)
+            remaining_part = signal(start_idx:end);
+            if length(remaining_part) < segment_length
+                start_idx = start_idx - (segment_length - length(remaining_part));  % 向前滑动，保证剩余部分补充至 1 秒
+                segment = signal(start_idx:start_idx + segment_length - 1);  % 重新获取 1 秒长的片段
+                segments = [segments; segment];  % 将补充后的片段作为最后一个片段
+            end
+        end
+        disp('meow');
+
+        for k = 1:length(segments(:,fs))
+            num_pic = num_pic + 1;
+            s = segments(k,:)';
+
+            %mel谱图
+            [mel_spec,~,~] = melSpectrogram(s, fs, "NumBands", 98);
+            mel_img = imresize(mat2gray(mel_spec), [98, 98]);
+            % mel_img = flipud(mel_img);
+
+            %CQT
+            fmin = 10;
+            fmax = fs/2;
+            numOctaves = log2(fmax/fmin);
+            binsPerOctave = round(98 / numOctaves);
+            cqtObj = cqt(s, 'SamplingFrequency', fs, 'BinsPerOctave', binsPerOctave, 'FrequencyLimits', [fmin, fmax]);
+            cfs_full = abs(cqtObj.c);
+            % 双边谱上下对称，只保留上半部分
+            cfs_oneSided = cfs_full(1:ceil(size(cfs_full,1)/2), :);
+            cqt_img = imresize(mat2gray(cfs_oneSided), [98, 98]);
+
+            %计算 Bark 谱图
+            window = hamming(256);
+            noverlap = round(0.5 * length(window));
+            nfft = 512;
+            [S, F, T] = spectrogram(s, window, noverlap, nfft, fs);
+            % 2. 将频率 F 映射到 Bark 标度（采用常见公式）
+            % Bark = 13 * atan(0.00076 * f) + 3.5 * atan((f/7500).^2)
+            barkF = 13 * atan(0.00076 * F) + 3.5 * atan((F/7500).^2);
+            % 3. 将 Bark 标度划分为 98 个等宽的频带
+            numBands = 98;
+            edges = linspace(min(barkF), max(barkF), numBands+1);
+            % 4. 对每个 Bark 带，将对应频率的能量相加（或求均值）
+            barkSpec = zeros(numBands, length(T));
+            for k = 1:numBands
+                idx = barkF >= edges(k) & barkF < edges(k+1);
+                if any(idx)
+                    % 这里对能量求和，你也可以改为求均值
+                    barkSpec(k, :) = sum(abs(S(idx, :)), 1);
+                end
+            end
+            bark_img = imresize(mat2gray(barkSpec), [98, 98]);
+
+            % 4. 拼接三个通道，生成 98×98×3 的 RGB 图像
+            three_channel_img = cat(3, mel_img, cqt_img, bark_img);
+            filename1=fullfile(Pic_out_folder,sprintf('%snew1.png',num2str(num_pic)));
+            imwrite(three_channel_img, filename1, 'Compression','none');         %Save image to file
+            
+        end
+    end
+end
+toc
+%% 绘图展示
+% figure;
+% imagesc(cfs_final);
+% axis xy;         % 保持坐标轴方向一致
+% axis on;         % 显示坐标轴
+% xlabel('Time frames');   % 时间轴标签
+% ylabel('Frequency bins');% 频率轴标签
+% colormap gray;   % 使用灰度图展示
+% colorbar;        % 显示色条
+% title('98x98 CQT 特征图');
+% 
+% 
+% %% 5. 临时绘图展示各个通道以及组合后的图像
+% figure;
+% subplot(2,2,1);
+% imagesc(mel_img);
+% axis xy;
+% xlabel('Time frames');
+% ylabel('Mel bins');
+% title('Mel Spectrogram');
+% colorbar;
+% 
+% subplot(2,2,2);
+% imagesc(cqt_img);
+% axis xy;
+% xlabel('Time frames');
+% ylabel('Frequency bins');
+% title('CQT (Single-sided)');
+% colorbar;
+% 
+% subplot(2,2,3);
+% imagesc(bark_img);
+% axis xy;
+% xlabel('Time frames');
+% ylabel('Frequency bins');
+% title('bark_img Spectrogram');
+% colorbar;
+% 
+% subplot(2,2,4);
+% imagesc(three_channel_img);
+% axis xy;
+% xlabel('Time frames');
+% ylabel('Frequency bins');
+% title('Combined 3-channel Image');
+% colorbar;

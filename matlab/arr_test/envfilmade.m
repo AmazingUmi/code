@@ -10,7 +10,7 @@ clear pathstr tmp index;
 
 %% 设置环境路径
 ENVall_folder = 'D:\database\Enhanced_shipsEar';%需要修正
-Signal_folder = 'D:\database\shipsEar\Shipsear_signal_folder';
+Signal_folder = 'D:\database\shipsEar\Shipsear_signal_folder0317';
 load([Signal_folder,'\Analy_freq_all.mat']);
 
 % 获取文件夹中的所有内容，筛选出所有子文件夹
@@ -32,7 +32,7 @@ end
 %% 生成新的环境文件
 tic
 %生成新的环境文件:length(ENVall_subfolders)
-for j = 2%:length(ENVall_subfolders)%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+for j = 1:length(ENVall_subfolders)%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     ENV_foldername = fullfile(ENVall_folder,ENVall_subfolders(j).name,'envfilefolder');
     cd(ENV_foldername)
     fileList = dir('TEST_s*');
