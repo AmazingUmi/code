@@ -17,11 +17,11 @@ txtfilename = 'env_files_list.txt';
 
 %% 读取arr结果、筛选并保存  
 tic
-for j = 1:length(ENVall_subfolders)
+for j = 2%1:length(ENVall_subfolders)
     newfilename = cellstr(readlines(fullfile(ENVall_folder,ENVall_subfolders(j).name,'envfilefolder',txtfilename)));
     newfilename(end) = [];
     ARR = [];
-    parfor i = 1:length(newfilename)
+    for i = 1:length(newfilename)
         %中间变量初始化
         amp0 = [];
         idx = [];

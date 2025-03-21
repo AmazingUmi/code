@@ -74,6 +74,7 @@ for m = 1:2
                 sig_amplitude = sig_amplitude(freq_idx);
                 sig_freq = sig_freq(freq_idx);
                 sig_phase = sig_phase(freq_idx);
+                sig_freq = round(sig_freq,1);%防止出现重复频率
 
                 Analyrecord(i).Amp = sig_amplitude; %每段信号各自的幅值
                 Analyrecord(i).freq = sig_freq;

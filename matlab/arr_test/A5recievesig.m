@@ -10,7 +10,7 @@ clear pathstr tmp index;
 
 %% 设置环境路径
 ENVall_folder = 'D:\database\results\Enhanced_shipsEar';
-Signal_folder = 'D:\database\shipsEar\Shipsear_signal_folder';
+Signal_folder = 'D:\database\shipsEar\Shipsear_signal_folder0317';
 load(fullfile(Signal_folder,'Analy_freq_all.mat'))
 
 contents = dir(ENVall_folder);

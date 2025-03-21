@@ -9,9 +9,9 @@ addpath(fullfile(pathstr(1:end-9),'underwateracoustic\bellhop_fundation\function
 clear pathstr tmp index;
 
 %% 设置环境路径
-ENVall_folder = 'D:\database\Enhanced_shipsEar';%需要修正
-Signal_folder = 'D:\database\shipsEar\Shipsear_signal_folder0317';
-load([Signal_folder,'\Analy_freq_all.mat']);
+ENVall_folder = 'D:\database\Enhanced_shipsEar';
+Signal_folder_path = 'D:\database\shipsEar\Shipsear_signal_folder';
+load([Signal_folder_path,'\Analy_freq_all.mat']);
 
 % 获取文件夹中的所有内容，筛选出所有子文件夹
 contents = dir(ENVall_folder);
@@ -31,16 +31,15 @@ for j = 1:length(ENVall_subfolders)
 end
 %% 生成新的环境文件
 tic
-%生成新的环境文件:length(ENVall_subfolders)
-for j = 1:length(ENVall_subfolders)%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+for j = 1%:length(ENVall_subfolders)
     ENV_foldername = fullfile(ENVall_folder,ENVall_subfolders(j).name,'envfilefolder');
     cd(ENV_foldername)
     fileList = dir('TEST_s*');
     envfilename = [fileList(1).name(1:end-4),'.env'];
     newfilename = {};
     
-    %改成parfor%%%%%%%%%%%%%%%%%%%%%
-    for i = 1:length(Analy_freq_all)
+    %改成parfor
+    parfor i = 1:length(Analy_freq_all)
         newfilename{i} = sprintf('test_%d', i);
         %修改循环中，环境文件里的频率
         fileContents = fileread(envfilename);
@@ -67,10 +66,10 @@ toc
 %% 文件打包，方便传输
 % 使用 tar + gzip 压缩
 cd(ENVall_folder);
-cd ..
+% cd ..
 tic
 zipname = ['ENVall_files_', datestr(now, 'yyyymmdd')];
-systemline = sprintf('tar -czf %s.tar.gz %s',zipname,'Enhanced_shipsEar');
+systemline = sprintf('tar -czf %s.tar.gz %s',zipname,'ENV1');
 system(systemline);
 toc
 

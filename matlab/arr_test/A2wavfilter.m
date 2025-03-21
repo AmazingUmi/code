@@ -8,7 +8,7 @@ addpath(pathstr);
 addpath(fullfile(pathstr(1:end-9),'underwateracoustic\bellhop_fundation\function'));
 clear pathstr tmp index;
 %% 路径设置
-Signal_folder_path = 'D:\database\shipsEar\Shipsear_signal_folder0317';
+Signal_folder_path = 'D:\database\shipsEar\Shipsear_signal_folder';
 sig_mat_files = dir(fullfile(Signal_folder_path, '*.mat'));
 sig_mat_files(1) = [];
 Analy_freq_all = [];
