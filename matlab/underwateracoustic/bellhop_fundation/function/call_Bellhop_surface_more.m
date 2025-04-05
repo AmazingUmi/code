@@ -72,7 +72,7 @@ Bdry.Bot.HS.betaI = 0;              % 海底横波衰减
 Pos.s.z = SD;  % 声源深度
 
 % 接收深度/m
-if zi == 0;
+if zi == 0
     Pos.r.z = RD;
 else
     Pos.r.z = 0:zi:Zmax;               

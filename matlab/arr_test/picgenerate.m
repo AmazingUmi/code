@@ -9,116 +9,126 @@ addpath(fullfile(pathstr(1:end-9),'underwateracoustic\bellhop_fundation\function
 clear pathstr tmp index;
 
 %% 设置输入输出路径
-ENVall_folder = 'D:\database\shipsEar\test2.26';%临时调试所用
-
-Signal_folder = 'D:\database\shipsEar\Shipsear_signal_folder';
-Pic_out_folder = 'D:\database\Enhanced_shipsEar\out';
-
+ENVall_folder = 'G:\database\Enhanced_shipsEar';%临时调试所用
 contents = dir(ENVall_folder);
 ENVall_subfolders = contents([contents.isdir] & ~ismember({contents.name}, {'.', '..'}));
 clear contents;
-
+%创建图片输出文件夹
+for j = 1:length(ENVall_subfolders)
+    NewSig_foldername = fullfile(ENVall_folder,ENVall_subfolders(j).name,'pic_out');
+    if ~exist(NewSig_foldername, 'dir')
+        mkdir(NewSig_foldername); % 创建文件夹
+        fprintf('文件夹"%s"已创建。\n', NewSig_foldername);
+    else
+        fprintf('文件夹"%s"已存在。\n', NewSig_foldername);
+    end
+end
 %% 绘制谱图
-for j = 1% : length(ENVall_subfolders)
+for j = 2:5% : length(ENVall_subfolders)
     NewSig_foldername = fullfile(ENVall_folder,ENVall_subfolders(j).name,'Newsig');
+    Pic_out_folder = fullfile(ENVall_folder,ENVall_subfolders(j).name,'pic_out');
     contents = dir(NewSig_foldername);
     NewSig_info = contents(~[contents.isdir]);
     clear contents;
-    
-    for i = 1% : length(NewSig_info)
+
+    for i = 1 : length(NewSig_info)
         NewSig_name = fullfile(NewSig_foldername,NewSig_info(i).name);
-        Pic_out_folder_class = fullfile(Pic_out_folder,NewSig_info(i).name(21));%需要争取获取输出路径
+        if NewSig_info(i).name(1:3) == 'tra'
+            Pic_out_folder_class = fullfile(Pic_out_folder,sprintf('Class %s',NewSig_info(i).name(21)));%需要争取获取输出路径
+        else
+            Pic_out_folder_class = fullfile(Pic_out_folder,sprintf('Class %s',NewSig_info(i).name(19)));%NewSig_info(i).name(1:3),
+        end
+        if ~exist(Pic_out_folder_class, 'dir')
+            mkdir(Pic_out_folder_class); % 创建文件夹
+        end
         load(NewSig_name)  %读取fs,tgt,tgsig
         tgsig = tgsig./max(abs(tgsig));
-        T = length(tgt)/fs;
+        %添加噪声
+        snr_db = 5;
+        % 添加高斯白噪声
+        tgsig = add_awgn(tgsig, snr_db);
+        signal = tgsig;
+        clear tgsig;
+        %预加重操作
+        a = 0.95;  % 预加重系数
+        signal = filter([1 -a], 1, signal);
+        % 中心化操作
+        signal = signal - mean(signal);
+        % 归一化操作
+        signal = signal/max(abs(signal));
+
+        T = length(signal)/fs;
         %初始化
         segments = [];
         segment_length = 1 * fs;
         overlap_length = 0.5 * segment_length;
         start_idx = 1;
         % 分割信号
-        while start_idx + segment_length < length(tgsig)
-            segment = tgsig(start_idx:start_idx + segment_length - 1);
+        while start_idx + segment_length - 1 <= length(signal)
+            segment = signal(start_idx:start_idx + segment_length - 1);
             segments = [segments; segment];
             start_idx = start_idx + overlap_length;
         end
-        
+        % 处理剩余不足 1 秒的部分
+        if start_idx < length(signal)
+            remaining_part = signal(start_idx:end);
+            if length(remaining_part) < segment_length
+                start_idx = start_idx - (segment_length - length(remaining_part));  % 向前滑动，保证剩余部分补充至 1 秒
+                segment = signal(start_idx:start_idx + segment_length - 1);  % 重新获取 1 秒长的片段
+                segments = [segments; segment];  % 将补充后的片段作为最后一个片段
+            end
+        end
+
+
         disp('meow');
-        for k = 1:length(segments(:,fs))
+        parfor k = 1:length(segments(:,fs))
             s = segments(k,:)';
-            h=figure;
-            melSpectrogram(s, fs,"NumBands",98);       % 绘制梅尔频谱图。
-            axis off;    colorbar off;   colormap gray;
-            set(gcf,'Position',[500 1000 98 98]);      set(gca,'Position',[0 0 1 1]);
-            I = getimage(gcf);          %Convert plot to image (true color RGB matrix).
-            I1=flipud(mat2gray(I));
-            J = imresize(I1, [98, 98]); %Resize image to resolution
-            filename1=fullfile(Pic_out_folder_class,sprintf('%s.png',num2str(k)));
-            imwrite(J, filename1, 'Compression','none');         %Save image to file
-            close(h);
+
+            % 1. 处理 mel 谱图
+            [mel_spec,~,~] = melSpectrogram(s, fs, "NumBands", 98);
+            % 转换为 dB（避免 log(0) 用 eps）
+            mel_spec_dB = 10 * log10(mel_spec + eps);
+            % 上下翻转、归一化，并调整到 98×98
+            mel_img = imresize(mat2gray(flipud(mel_spec_dB)), [98, 98]);
+
+            % 2. 处理 CQT 谱图
+            fmin = 10;
+            fmax = fs / 2;
+            numOctaves = log2(fmax / fmin);
+            binsPerOctave = round(98 / numOctaves);
+            cqtObj = cqt(s, 'SamplingFrequency', fs, 'BinsPerOctave', binsPerOctave, 'FrequencyLimits', [fmin, fmax]);
+            cfs_full = abs(cqtObj.c);
+            % 保留单边谱（上半部分）
+            cfs_oneSided = cfs_full(1:ceil(size(cfs_full,1)/2), :);
+            % 转换为 dB，并进行翻转、归一化及尺寸调整
+            cqt_spec_dB = 10 * log10(cfs_oneSided + eps);
+            cqt_img = imresize(mat2gray(flipud(cqt_spec_dB)), [98, 98]);
+
+            % 3. 处理 Bark 谱图
+            window = hamming(256);
+            noverlap = round(0.5 * length(window));
+            nfft = 512;
+            [S, F, T] = spectrogram(s, window, noverlap, nfft, fs);
+            % 将频率映射到 Bark 标度
+            barkF = 13 * atan(0.00076 * F) + 3.5 * atan((F / 7500).^2);
+            numBands = 98;
+            edges = linspace(min(barkF), max(barkF), numBands+1);
+            barkSpec = zeros(numBands, length(T));
+            for m = 1:numBands
+                idx = barkF >= edges(m) & barkF < edges(m+1);
+                if any(idx)
+                    % 这里对能量求和（也可以改为求均值）
+                    barkSpec(m, :) = sum(abs(S(idx, :)), 1);
+                end
+            end
+            % 转换为 dB，翻转、归一化及尺寸调整
+            bark_spec_dB = 10 * log10(barkSpec + eps);
+            bark_img = imresize(mat2gray(flipud(bark_spec_dB)), [98, 98]);
+
+            % 4. 拼接三个通道生成 RGB 图像
+            three_channel_img = cat(3, mel_img, cqt_img, bark_img);
+            filename1 = fullfile(Pic_out_folder_class, [NewSig_info(i).name(1:end-4), sprintf('_pic%s.png', num2str(k))]);
+            imwrite(three_channel_img, filename1, 'Compression', 'none');
         end
     end
 end
-%% 
-% % 假设以下变量已定义
-% % segments: [num_segments, signal_length] 的矩阵
-% % fs: 采样率
-% % Pic_out_folder: 图像保存文件夹路径
-% 
-% % 定义 TF Entropy 的窗口大小
-% windowSize = 5; % 可以根据需要调整
-% 
-% for k = 1:size(segments, 1)
-%     % 获取第 k 个音频段，并确保其为 double 类型
-%     s = double(segments(k, :)');
-% 
-%     % 检查 s 的类型
-%     if ~isa(s, 'double')
-%         disp(['k = ' num2str(k) ': 信号类型为 ' class(s)]);
-%         s = cast(s, 'double');
-%     end
-% 
-%     % 检查信号是否包含 NaN 或 Inf
-%     if any(isnan(s)) || any(isinf(s))
-%         disp(['k = ' num2str(k) ': 信号包含 NaN 或 Inf 值，跳过该段']);
-%         continue; % 跳过当前循环，继续下一个
-%     end
-% 
-%     h = figure('Visible','off');
-% 
-%     % 计算梅尔频谱图
-%     melSpec = melSpectrogram(s, fs, "NumBands", 64);
-%     melSpecImage = mat2gray(melSpec); % 归一化到 [0,1]
-%     melSpecResized = imresize(melSpecImage, [64, 98]); % 调整大小
-% 
-%     % 计算 MFCC
-%     coeffs = mfcc(s, fs, 'NumCoeffs', 32, 'LogEnergy', 'Ignore'); % 获取64个MFCC系数
-%     mfccImage = mat2gray(coeffs'); % 转置后归一化
-%     mfccResized = imresize(mfccImage, [64, 98]);
-% 
-%     % 计算 Time-Frequency Entropy 特征
-%     try
-%         tfEntropySpec = computeTimeFrequencyEntropy(melSpec, windowSize);
-%     catch ME
-%         disp(['TF Entropy 计算错误，k = ' num2str(k) ': ' ME.message]);
-%         close(h);
-%         continue; % 跳过当前循环，继续下一个
-%     end
-%     tfEntropyImage = mat2gray(tfEntropySpec);
-%     tfEntropyResized = imresize(tfEntropyImage, [64, 98]);
-% 
-%     % 合并三个特征为 RGB 三通道
-%     combinedImage = cat(3, melSpecResized, mfccResized, tfEntropyResized);
-% 
-%     % 显示并保存图像
-%     imshow(combinedImage);
-%     axis off; colorbar off; 
-%     set(gcf, 'Position', [500 1000 64 98]); 
-%     set(gca, 'Position', [0 0 1 1]);
-% 
-%     % 保存为 PNG 文件
-%     filename = fullfile(Pic_out_folder, sprintf('%s.png', num2str(k)));
-%     imwrite(combinedImage, filename, 'Compression', 'none');
-% 
-%     close(h);
-% end

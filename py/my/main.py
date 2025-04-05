@@ -9,8 +9,11 @@ from datetime import datetime
 import time
 
 # 设置路径
-train_dir = "D:/database/shipsEar/NewSig_foldername_direct_0317/combine/train_origin_pic/"  # 训练集路径
-val_dir = "D:/database/shipsEar/NewSig_foldername_direct_0317/combine/val_origin_pic/"  # 验证集路径
+train_dir = "G:/database/shipsEar/shipsEar_Enhanced/train_cb_pic_rgb"\
+            #"G:/database/shipsEar/shipsEar_reclassified/train_origin_pic_rgb" # 训练集路径
+
+val_dir = "G:/database/shipsEar/shipsEar_Enhanced/val_cb_pic_rgb"
+          #"G:/database/shipsEar/shipsEar_reclassified/val_origin_pic_rgb"  # 验证集路径
 batch_size = 64
 num_epochs = 16
 learning_rate = 0.001
@@ -24,13 +27,11 @@ logging.basicConfig(filename=log_file, level=logging.INFO,
                     format='%(asctime)s - %(message)s')
 logging.info("Training started...")
 
-# 数据预处理：注意如果原始谱图为灰度图，这里使用 Grayscale 将其转换为 3 通道（复制同一数据）
+# 数据预处理
 data_transforms = transforms.Compose([
     transforms.Resize((98, 98)),  # 调整图片大小
-    transforms.Grayscale(num_output_channels=3),  # 将灰度图转换为 3 通道
-    transforms.ToTensor(),  # 转为张量
-    transforms.Normalize([0.485, 0.456, 0.406],  # 标准化参数（与预训练模型一致）
-                         [0.229, 0.224, 0.225])
+    transforms.ToTensor(),        # 转为张量
+    transforms.Lambda(lambda x: (x - x.mean(dim=(1, 2), keepdim=True)) / (x.std(dim=(1, 2), keepdim=True) + 1e-8))
 ])
 
 # 加载训练集和验证集

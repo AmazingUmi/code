@@ -1,0 +1,10 @@
+2025-03-30 17:17:58,523 - Training started...
+2025-03-30 17:17:59,047 - Model loaded from model.pth
+2025-03-30 17:19:12,545 - Epoch 1/16, Training Loss: 0.0778
+2025-03-30 17:19:18,580 - Epoch 1/16, Validation Accuracy: 0.78
+2025-03-30 17:20:34,579 - Epoch 2/16, Training Loss: 0.0434
+2025-03-30 17:20:40,821 - Epoch 2/16, Validation Accuracy: 0.74
+2025-03-30 17:21:58,649 - Epoch 3/16, Training Loss: 0.0445
+2025-03-30 17:22:04,999 - Epoch 3/16, Validation Accuracy: 0.78
+2025-03-30 17:23:22,253 - Epoch 4/16, Training Loss: 0.0380
+2025-03-30 17:23:28,938 - Epoch 4/16, Validation Accuracy: 0.77

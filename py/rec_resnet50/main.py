@@ -9,12 +9,17 @@ from datetime import datetime
 import time  # 导入 time 模块
 
 # 设置路径
-train_dir = "D:/database/shipsEar/shipsEar_reclassified/train_origin_pic_rgb"  # 训练集路径
-val_dir = "D:/database/shipsEar/shipsEar_reclassified/val_origin_pic_rgb/"  # 验证集路径
+train_dir = "G:/database/Enhanced_shipsEar/ENV1/pic_out/tra"
+            #"G:/database/shipsEar/shipsEar_Enhanced/train_cb2_pic_rgb"
+            #"G:/database/shipsEar/shipsEar_reclassified/train_origin_pic_rgb" # 训练集路径
+
+val_dir = "G:/database/Enhanced_shipsEar/ENV1/pic_out/val"
+          #"G:/database/shipsEar/shipsEar_Enhanced/val_cb2_pic_rgb"
+          #"G:/database/shipsEar/shipsEar_reclassified/val_origin_pic_rgb"  # 验证集路径
 batch_size = 64
-num_epochs = 16
+num_epochs = 32
 learning_rate = 0.001
-num_classes = 5  # 修改为你的类别数量
+num_classes = 4  # 修改为你的类别数量
 model_save_path = "model.pth"
 
 # 获取当前时间戳，格式为：年-月-日_时-分-秒
@@ -29,8 +34,8 @@ logging.info("Training started...")
 # 数据预处理
 data_transforms = transforms.Compose([
     transforms.Resize((98, 98)),  # 调整图片大小
-    transforms.ToTensor(),  # 转为张量
-    transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])  # 标准化
+    transforms.ToTensor(),        # 转为张量
+    transforms.Lambda(lambda x: (x - x.mean(dim=(1, 2), keepdim=True)) / (x.std(dim=(1, 2), keepdim=True) + 1e-8))
 ])
 
 # 加载训练集和验证集

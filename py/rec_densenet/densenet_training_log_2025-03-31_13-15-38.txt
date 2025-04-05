@@ -1,0 +1,6 @@
+2025-03-31 13:15:38,198 - DenseNet Training started...
+2025-03-31 13:15:38,972 - DenseNet model loaded from densenet_model.pth
+2025-03-31 13:21:12,082 - Epoch 1/32, Training Loss: 0.0070
+2025-03-31 13:21:39,178 - Epoch 1/32, Validation Accuracy: 79.53%
+2025-03-31 13:23:23,087 - Epoch 2/32, Training Loss: 0.0159
+2025-03-31 13:23:29,447 - Epoch 2/32, Validation Accuracy: 77.07%

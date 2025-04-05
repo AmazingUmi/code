@@ -10,34 +10,43 @@ clear pathstr tmp index;
 
 %% 设置输入输出路径
 %未切分音频地址
-val_folder_path = 'D:\database\shipsEar\shipsEar_reclassified\val_raw_wav';
-train_folder_path = 'D:\database\shipsEar\shipsEar_reclassified\train_raw_wav';
+val_folder_path = 'G:\database\shipsEar\shipsEar_reclassified\val_raw_wav';
+train_folder_path = 'G:\database\shipsEar\shipsEar_reclassified\train_raw_wav';
 %输出的图片地址
-val_Pic_out_folder = 'D:\database\shipsEar\shipsEar_reclassified\val_origin_pic';
-train_Pic_out_folder = 'D:\database\shipsEar\shipsEar_reclassified\train_origin_pic';
+val_Pic_out_folder = 'G:\database\shipsEar\shipsEar_reclassified\val_origin_pic';
+train_Pic_out_folder = 'G:\database\shipsEar\shipsEar_reclassified\train_origin_pic';
 
-contents = dir(val_folder_path);
+contents = dir(train_folder_path);
 subfolders = contents([contents.isdir] & ~ismember({contents.name}, {'.', '..'}));
 clear contents;
 
 %% 纯mel谱图
 tic
 for j = 1:length(subfolders)
-    item_foldername = fullfile(val_folder_path,subfolders(j).name);
+    item_foldername = fullfile(train_folder_path,subfolders(j).name);
     contents = dir(item_foldername);
     item_Sig_info = contents(~[contents.isdir]);
     clear contents;
-    Pic_out_folder = fullfile(val_Pic_out_folder,subfolders(j).name);
+    Pic_out_folder = fullfile(train_Pic_out_folder,subfolders(j).name);
     if ~exist(Pic_out_folder, 'dir')
         mkdir(Pic_out_folder); % 创建图片输出文件夹
     end
 
     % :length(NewSig_info)
-    num_pic = 0;
+    % num_pic = 0;
     for i = 1:length(item_Sig_info)
         Sig_name = fullfile(item_foldername,item_Sig_info(i).name);
         [signal, fs] = audioread(Sig_name);
         signal = signal';
+        %预加重操作
+        a = 0.95;  % 预加重系数
+        signal = filter([1 -a], 1, signal);
+        % 中心化操作
+        signal = signal - mean(signal);
+        % 归一化操作
+        signal = signal/max(abs(signal));
+        
+
         T = length(signal)/fs;
         %初始化
         segments = [];
@@ -62,18 +71,16 @@ for j = 1:length(subfolders)
         disp('meow');
 
         for k = 1:length(segments(:,fs))
-            num_pic = num_pic + 1;
             s = segments(k,:)';
-            h=figure;
-            melSpectrogram(s, fs,"NumBands",98);       % 绘制梅尔频谱图。
-            axis off;    colorbar off;   colormap gray;
-            set(gcf,'Position',[500 1000 98 98]);      set(gca,'Position',[0 0 1 1]);
-            I = getimage(gcf);          %Convert plot to image (true color RGB matrix).
-            I1=flipud(mat2gray(I));
-            J = imresize(I1, [98, 98]); %Resize image to resolution
-            filename1=fullfile(Pic_out_folder,sprintf('%s.png',num2str(num_pic)));
-            imwrite(J, filename1, 'Compression','none');         %Save image to file
-            close(h);
+            % 计算 mel 频谱图
+            [mel_spec,~,~] = melSpectrogram(s, fs, "NumBands", 98);
+            % 对频谱图进行归一化并调整至 98×98 大小（单通道灰度图）
+            mel_spec_dB = 10*log10(mel_spec + eps);
+            % 2. 对转换后的数据进行归一化前先翻转（模拟 getimage 后 flipud(mat2gray(·)）的效果）
+            mel_img = imresize(mat2gray(flipud(mel_spec_dB)), [98, 98]);
+            % 构建保存图像的文件名，并保存图像（不进行压缩）
+            filename1 = fullfile(Pic_out_folder, [item_Sig_info(i).name(1:end-4), sprintf('_pic%s.png', num2str(k))]);
+            imwrite(mel_img, filename1, 'Compression','none');
         end
     end
 end

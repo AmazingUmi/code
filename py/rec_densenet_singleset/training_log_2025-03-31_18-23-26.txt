@@ -1,0 +1,17 @@
+2025-03-31 18:23:26,809 - Training started...
+2025-03-31 18:25:55,058 - Epoch 1/32 - Training Loss: 0.3231
+2025-03-31 18:26:33,377 - Epoch 1/32 - Validation Accuracy: 0.2867
+2025-03-31 18:26:59,643 - Epoch 2/32 - Training Loss: 0.1098
+2025-03-31 18:27:07,007 - Epoch 2/32 - Validation Accuracy: 0.1630
+2025-03-31 18:27:33,525 - Epoch 3/32 - Training Loss: 0.0641
+2025-03-31 18:27:46,525 - Epoch 3/32 - Validation Accuracy: 0.1730
+2025-03-31 18:28:13,086 - Epoch 4/32 - Training Loss: 0.0567
+2025-03-31 18:28:20,449 - Epoch 4/32 - Validation Accuracy: 0.3061
+2025-03-31 18:28:53,994 - Epoch 5/32 - Training Loss: 0.0428
+2025-03-31 18:29:02,910 - Epoch 5/32 - Validation Accuracy: 0.2040
+2025-03-31 18:29:29,343 - Epoch 6/32 - Training Loss: 0.0412
+2025-03-31 18:29:36,679 - Epoch 6/32 - Validation Accuracy: 0.1858
+2025-03-31 18:30:06,222 - Epoch 7/32 - Training Loss: 0.0333
+2025-03-31 18:30:14,081 - Epoch 7/32 - Validation Accuracy: 0.3218
+2025-03-31 18:30:40,739 - Epoch 8/32 - Training Loss: 0.0262
+2025-03-31 18:30:47,917 - Epoch 8/32 - Validation Accuracy: 0.2401

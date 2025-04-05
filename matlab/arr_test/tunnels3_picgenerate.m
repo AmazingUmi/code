@@ -10,23 +10,25 @@ clear pathstr tmp index;
 
 %% 设置输入输出路径
 %未切分音频地址
-val_folder_path = 'D:\database\shipsEar\shipsEar_reclassified\val_raw_wav';
-train_folder_path = 'D:\database\shipsEar\shipsEar_reclassified\train_raw_wav';
+all_folder_path = 'G:\database\shipsEar\shipsEar_classified\origin_raw';
+val_folder_path = 'G:\database\shipsEar\shipsEar_reclassified\val_raw_wav';
+train_folder_path = 'G:\database\shipsEar\shipsEar_reclassified\train_raw_wav';
 %输出的图片地址
-val_Pic_out_folder = 'D:\database\shipsEar\shipsEar_reclassified\val_origin_pic_rgb';
-train_Pic_out_folder = 'D:\database\shipsEar\shipsEar_reclassified\train_origin_pic_rgb';
+all_Pic_out_folder = 'G:\database\shipsEar\shipsEar_classified\origin_pic_rgb';
+val_Pic_out_folder = 'G:\database\shipsEar\shipsEar_reclassified\val_origin_pic_rgb';
+train_Pic_out_folder = 'G:\database\shipsEar\shipsEar_reclassified\train_origin_pic_rgb';
 
-contents = dir(val_folder_path);
+contents = dir(all_folder_path);
 subfolders = contents([contents.isdir] & ~ismember({contents.name}, {'.', '..'}));
 clear contents;
 
 %% 绘图
 tic
-parfor j = 1:length(subfolders)
-    item_foldername = fullfile(val_folder_path,subfolders(j).name);
+for j = 1:length(subfolders)
+    item_foldername = fullfile(all_folder_path,subfolders(j).name);
     contents = dir(item_foldername);
     item_Sig_info = contents(~[contents.isdir]);
-    Pic_out_folder = fullfile(val_Pic_out_folder,subfolders(j).name);
+    Pic_out_folder = fullfile(all_Pic_out_folder,subfolders(j).name);
     if ~exist(Pic_out_folder, 'dir')
         mkdir(Pic_out_folder); % 创建图片输出文件夹
     end
@@ -37,6 +39,14 @@ parfor j = 1:length(subfolders)
         Sig_name = fullfile(item_foldername,item_Sig_info(i).name);
         [signal, fs] = audioread(Sig_name);
         signal = signal';
+        %预加重操作
+        a = 0.95;  % 预加重系数
+        signal = filter([1 -a], 1, signal);
+        % 中心化操作
+        signal = signal - mean(signal);
+        % 归一化操作
+        signal = signal/max(abs(signal));
+
         T = length(signal)/fs;
         %初始化
         segments = [];
@@ -60,53 +70,54 @@ parfor j = 1:length(subfolders)
         end
         disp('meow');
 
-        for k = 1:length(segments(:,fs))
-            num_pic = num_pic + 1;
+        parfor k = 1:length(segments(:,fs))
             s = segments(k,:)';
-
-            %mel谱图
+            
+            % 1. 处理 mel 谱图
             [mel_spec,~,~] = melSpectrogram(s, fs, "NumBands", 98);
-            mel_img = imresize(mat2gray(mel_spec), [98, 98]);
-            % mel_img = flipud(mel_img);
+            % 转换为 dB（避免 log(0) 用 eps）
+            mel_spec_dB = 10 * log10(mel_spec + eps);
+            % 上下翻转、归一化，并调整到 98×98
+            mel_img = imresize(mat2gray(flipud(mel_spec_dB)), [98, 98]);
 
-            %CQT
+            % 2. 处理 CQT 谱图
             fmin = 10;
-            fmax = fs/2;
-            numOctaves = log2(fmax/fmin);
+            fmax = fs / 2;
+            numOctaves = log2(fmax / fmin);
             binsPerOctave = round(98 / numOctaves);
             cqtObj = cqt(s, 'SamplingFrequency', fs, 'BinsPerOctave', binsPerOctave, 'FrequencyLimits', [fmin, fmax]);
             cfs_full = abs(cqtObj.c);
-            % 双边谱上下对称，只保留上半部分
+            % 保留单边谱（上半部分）
             cfs_oneSided = cfs_full(1:ceil(size(cfs_full,1)/2), :);
-            cqt_img = imresize(mat2gray(cfs_oneSided), [98, 98]);
+            % 转换为 dB，并进行翻转、归一化及尺寸调整
+            cqt_spec_dB = 10 * log10(cfs_oneSided + eps);
+            cqt_img = imresize(mat2gray(flipud(cqt_spec_dB)), [98, 98]);
 
-            %计算 Bark 谱图
+            % 3. 处理 Bark 谱图
             window = hamming(256);
             noverlap = round(0.5 * length(window));
             nfft = 512;
             [S, F, T] = spectrogram(s, window, noverlap, nfft, fs);
-            % 2. 将频率 F 映射到 Bark 标度（采用常见公式）
-            % Bark = 13 * atan(0.00076 * f) + 3.5 * atan((f/7500).^2)
-            barkF = 13 * atan(0.00076 * F) + 3.5 * atan((F/7500).^2);
-            % 3. 将 Bark 标度划分为 98 个等宽的频带
+            % 将频率映射到 Bark 标度
+            barkF = 13 * atan(0.00076 * F) + 3.5 * atan((F / 7500).^2);
             numBands = 98;
             edges = linspace(min(barkF), max(barkF), numBands+1);
-            % 4. 对每个 Bark 带，将对应频率的能量相加（或求均值）
             barkSpec = zeros(numBands, length(T));
-            for k = 1:numBands
-                idx = barkF >= edges(k) & barkF < edges(k+1);
+            for m = 1:numBands
+                idx = barkF >= edges(m) & barkF < edges(m+1);
                 if any(idx)
-                    % 这里对能量求和，你也可以改为求均值
-                    barkSpec(k, :) = sum(abs(S(idx, :)), 1);
+                    % 这里对能量求和（也可以改为求均值）
+                    barkSpec(m, :) = sum(abs(S(idx, :)), 1);
                 end
             end
-            bark_img = imresize(mat2gray(barkSpec), [98, 98]);
+            % 转换为 dB，翻转、归一化及尺寸调整
+            bark_spec_dB = 10 * log10(barkSpec + eps);
+            bark_img = imresize(mat2gray(flipud(bark_spec_dB)), [98, 98]);
 
-            % 4. 拼接三个通道，生成 98×98×3 的 RGB 图像
+            % 4. 拼接三个通道生成 RGB 图像
             three_channel_img = cat(3, mel_img, cqt_img, bark_img);
-            filename1=fullfile(Pic_out_folder,sprintf('%snew1.png',num2str(num_pic)));
-            imwrite(three_channel_img, filename1, 'Compression','none');         %Save image to file
-            
+            filename1 = fullfile(Pic_out_folder, [item_Sig_info(i).name(1:end-4), sprintf('_pic%s.png', num2str(k))]);
+            imwrite(three_channel_img, filename1, 'Compression', 'none');
         end
     end
 end

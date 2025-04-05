@@ -1,0 +1,23 @@
+2025-03-30 22:48:12,182 - ConvNeXt Training started...
+2025-03-30 22:51:42,227 - Epoch 1/32, Training Loss: 0.7898
+2025-03-30 22:51:50,652 - Epoch 1/32, Validation Accuracy: 62.57%
+2025-03-30 22:53:41,891 - Epoch 2/32, Training Loss: 0.1896
+2025-03-30 22:53:48,389 - Epoch 2/32, Validation Accuracy: 61.00%
+2025-03-30 22:55:27,274 - Epoch 3/32, Training Loss: 0.1170
+2025-03-30 22:55:33,683 - Epoch 3/32, Validation Accuracy: 64.90%
+2025-03-30 22:57:12,515 - Epoch 4/32, Training Loss: 0.0945
+2025-03-30 22:57:19,018 - Epoch 4/32, Validation Accuracy: 54.55%
+2025-03-30 22:58:57,844 - Epoch 5/32, Training Loss: 0.0854
+2025-03-30 22:59:04,214 - Epoch 5/32, Validation Accuracy: 55.35%
+2025-03-30 23:00:42,858 - Epoch 6/32, Training Loss: 0.0749
+2025-03-30 23:00:49,367 - Epoch 6/32, Validation Accuracy: 58.56%
+2025-03-30 23:02:35,830 - Epoch 7/32, Training Loss: 0.0699
+2025-03-30 23:02:42,491 - Epoch 7/32, Validation Accuracy: 64.18%
+2025-03-30 23:04:28,391 - Epoch 8/32, Training Loss: 0.0714
+2025-03-30 23:04:34,778 - Epoch 8/32, Validation Accuracy: 64.70%
+2025-03-30 23:06:23,306 - Epoch 9/32, Training Loss: 0.0594
+2025-03-30 23:06:29,865 - Epoch 9/32, Validation Accuracy: 62.63%
+2025-03-30 23:08:15,520 - Epoch 10/32, Training Loss: 0.0623
+2025-03-30 23:08:24,229 - Epoch 10/32, Validation Accuracy: 55.16%
+2025-03-30 23:10:10,950 - Epoch 11/32, Training Loss: 0.0570
+2025-03-30 23:10:17,510 - Epoch 11/32, Validation Accuracy: 61.66%
