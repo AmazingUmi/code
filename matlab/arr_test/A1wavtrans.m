@@ -36,7 +36,7 @@ for j = 1:length(wav_subfolders)
         t = (0:L-1)*dt; % 信号时间
 
         %切分信号,依据信号长度进行修正
-        cut_Tlength = 2;
+        cut_Tlength = 1;
         N = floor(T/cut_Tlength);
         % N = min(N,10);
         Ndelay = []; cut_length = cut_Tlength * fs;
