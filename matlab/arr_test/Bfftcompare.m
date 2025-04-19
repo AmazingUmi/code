@@ -1,0 +1,262 @@
+%% 验证滤除部分频率对信号特征的影响
+%% 初始化
+clear; close all; clc;
+tmp = matlab.desktop.editor.getActive;
+index = strfind(tmp.Filename, '\') ;
+pathstr = tmp.Filename(1:index(end)-1);
+cd(pathstr);
+addpath(pathstr);
+addpath(fullfile(pathstr(1:end-9),'underwateracoustic\bellhop_fundation\function'));
+clear tmp index;
+
+%% 读取原始时域信号
+wav_folder_total = 'G:\database\shipsEar\shipsEar_classified\origin_raw';
+filename = fullfile(wav_folder_total,'Class A/15__10_07_13_radaUno_Pasa.wav');
+[signal, fs] = audioread(filename);
+signal = signal ./ max(abs(signal)); %归一化
+signal = signal';
+L = length(signal);
+T = L/fs;
+t = (0:L-1)/fs;
+
+%% 切分信号
+cut_Tlength_vec = [ 1, 2];                     % 单位为秒（s）
+threshold_vec = [0.01, 0.05];                    % 滤除阈值
+for a = 1:length(threshold_vec)
+    threshold = threshold_vec(a);
+    for b = 1:length(cut_Tlength_vec)
+        cut_Tlength = cut_Tlength_vec(b);
+        N = floor(T/cut_Tlength);            % 分段段数
+        cut_length = ceil(cut_Tlength * fs);
+        Nsignal = zeros(N,cut_length);
+
+        %% 计算特性
+        tic
+        % 指标初始化
+        MSE = zeros(1, N);
+        MAE = zeros(1, N);
+        spectral_contrast_dist = zeros(1, N);
+        Time_freq_contrast_dist_Manhattan = zeros(1, N);
+        Time_freq_contrast_dist_LSD = zeros(1, N);
+        Time_freq_contrast_dist_KL = zeros(1, N);
+
+        for i = 1:N
+            % 频谱分析
+            mid_signal =  signal((i-1)*cut_length+1:i*cut_length);
+            signal_f = fft(mid_signal);  %此信号包含相位信息
+            signal_f_2 = signal_f(1:cut_length/2+1);
+            signal_f_3 = abs(signal_f_2)/cut_length; %信号幅值
+            signal_f_3(2:end-1) = 2*signal_f_3(2:end-1);
+            signal_f_3_phi = angle(signal_f_2);
+            f = (0:cut_length/2)/cut_length*fs;
+
+            % 频率成分提取
+            [sig_peaks, sig_locs] = sort(signal_f_3,'descend');
+            valid_idx = sig_peaks >= threshold*sig_peaks(1);
+            sig_locs = sig_locs(valid_idx);
+            sig_peaks = sig_peaks(valid_idx);
+            sig_freq = f(sig_locs);
+            sig_amplitude = sig_peaks;
+            sig_phase = signal_f_3_phi(sig_locs);
+            %滤除10Hz以下频率，以及fs/2以上的频率
+            freq_idx = (sig_freq >= 10) & (sig_freq <= 5000);
+            sig_amplitude = sig_amplitude(freq_idx);
+            sig_freq = sig_freq(freq_idx);
+            sig_phase = sig_phase(freq_idx);
+            sig_freq = round(sig_freq,1);%防止出现重复频率
+
+            % 信号重构
+
+            pt = (0:cut_length-1)/fs;
+            recover_sig = zeros(size(pt));
+            for k = 1:length(sig_freq)
+                recover_sig = recover_sig + sig_amplitude(k)*cos(2*pi*sig_freq(k)*pt + sig_phase(k));
+            end
+            Nsignal(i,:) = recover_sig;
+
+            % 评估指标计算
+            % 时域指标
+            MSE(i) = mean((mid_signal - recover_sig).^2);
+            MAE(i) = mean(abs(mid_signal - recover_sig));
+            % 频域指标
+            f_edges = [10 500 5000 fs/2];
+            [Pxx_orig, f_bands] = pwelch(mid_signal, hamming(1024), 512, 1024, fs);
+            [Pxx_rec, ~] = pwelch(recover_sig, hamming(1024), 512, 1024, fs);
+
+            % 计算频段能量比例
+            band_energy_orig = zeros(1, length(f_edges)-1);
+            band_energy_rec = zeros(1, length(f_edges)-1);
+            for k = 1:length(f_edges)-1
+                band_mask = (f_bands >= f_edges(k)) & (f_bands < f_edges(k+1));
+                band_energy_orig(k) = sum(Pxx_orig(band_mask));
+                band_energy_rec(k) = sum(Pxx_rec(band_mask));
+            end
+            total_energy_orig = sum(band_energy_orig);
+            total_energy_rec = sum(band_energy_rec);
+            spectral_contrast_dist(i) = sum(abs((band_energy_orig - band_energy_rec)./(band_energy_orig + eps)));
+
+            %计算时频能量差异
+            [s_orig, ~, ~] = spectrogram(mid_signal, hamming(1024), 512, 1024, fs, 'yaxis');
+            [s_rec, ~, ~] = spectrogram(recover_sig, hamming(1024), 512, 1024, fs, 'yaxis');
+            d_timefreq = abs(s_orig - s_rec);
+            Time_freq_contrast_dist_Manhattan(i) = mean(d_timefreq(:));
+
+            % 计算每个时频点上的平方误差
+            log_error_sq = (log10(abs(s_orig) + eps) - log10(abs(s_rec) + eps)).^2;
+            % 计算整体对数谱距离 (LSD)，取均值后开根号
+            Time_freq_contrast_dist_LSD(i) = sqrt(mean(log_error_sq(:)));
+
+            % 计算功率谱（能量谱）
+            power_orig = abs(s_orig).^2;
+            power_rec  = abs(s_rec).^2;
+            % 对每一帧（列）归一化，得到概率分布
+            P = power_orig ./ (sum(power_orig, 1) + eps);
+            Q = power_rec  ./ (sum(power_rec, 1) + eps);
+            % 计算每一帧的 KL 散度：sum(P * log(P./Q))
+            % 注意：这里保证 P 和 Q 均加上 epsilon 防止 log(0)
+            KL_divergence = sum(P .* log((P + eps) ./ (Q + eps)), 1);
+            % 对所有时刻取平均，得到整体 KL 散度度量
+            Time_freq_contrast_dist_KL(i) = mean(KL_divergence);
+        end
+        toc
+        %% 整体信号恢复，原始信号截取
+        recover_sig_complete = zeros(1, N*cut_length);
+        for i = 1:N
+            recover_sig_complete((i-1)*cut_length+1:i*cut_length) = Nsignal(i,:);
+        end
+        signal(N*cut_length+1:end) = [];
+        % 对于时域特性，由于分段与否并不影响，实际值相同
+
+        % 频域指标
+        f_edges = [10 500 5000 fs/2];
+        [Pxx_orig, f_bands] = pwelch(signal, hamming(1024), 512, 1024, fs);
+        [Pxx_rec, ~] = pwelch(recover_sig_complete, hamming(1024), 512, 1024, fs);
+
+        % 计算频段能量比例
+        band_energy_orig = zeros(1, length(f_edges)-1);
+        band_energy_rec = zeros(1, length(f_edges)-1);
+        for k = 1:length(f_edges)-1
+            band_mask = (f_bands >= f_edges(k)) & (f_bands < f_edges(k+1));
+            band_energy_orig(k) = sum(Pxx_orig(band_mask));
+            band_energy_rec(k) = sum(Pxx_rec(band_mask));
+        end
+        total_energy_orig = sum(band_energy_orig);
+        total_energy_rec = sum(band_energy_rec);
+        spectral_contrast_dist_complete = sum(abs((band_energy_orig - band_energy_rec)./(band_energy_orig + eps)));
+
+        %计算时频能量差异
+        [s_orig, ~, ~] = spectrogram(signal, hamming(1024), 512, 1024, fs, 'yaxis');
+        [s_rec, ~, ~] = spectrogram(recover_sig_complete, hamming(1024), 512, 1024, fs, 'yaxis');
+        d_timefreq = abs(s_orig - s_rec);
+        Time_freq_contrast_dist_Manhattan_complete = mean(d_timefreq(:));
+
+        % 计算每个时频点上的平方误差
+        log_error_sq = (log10(abs(s_orig) + eps) - log10(abs(s_rec) + eps)).^2;
+        % 计算整体对数谱距离 (LSD)，取均值后开根号
+        Time_freq_contrast_dist_LSD_complete = sqrt(mean(log_error_sq(:)));
+
+        % 计算功率谱（能量谱）
+        power_orig = abs(s_orig).^2;
+        power_rec  = abs(s_rec).^2;
+        % 对每一帧（列）归一化，得到概率分布
+        P = power_orig ./ (sum(power_orig, 1) + eps);
+        Q = power_rec  ./ (sum(power_rec, 1) + eps);
+        % 计算每一帧的 KL 散度：sum(P * log(P./Q))
+        % 注意：这里保证 P 和 Q 均加上 epsilon 防止 log(0)
+        KL_divergence = sum(P .* log((P + eps) ./ (Q + eps)), 1);
+        % 对所有时刻取平均，得到整体 KL 散度度量
+        Time_freq_contrast_dist_KL_complete = mean(KL_divergence);
+        %% 分段平均指标计算
+        Avr_MSE = mean(MSE);
+        Avr_MAE = mean(MAE);
+        Avr_spectral_contrast_dist = mean(spectral_contrast_dist);
+        Avr_Time_freq_contrast_dist_Manhattan = mean(Time_freq_contrast_dist_Manhattan);
+        Avr_Time_freq_contrast_dist_LSD = mean(Time_freq_contrast_dist_LSD);
+        Avr_Time_freq_contrast_dist_KL = mean(Time_freq_contrast_dist_KL);
+
+
+        %% 显示评估结果并输出到TXT文件
+        result_filename = fullfile(pathstr, 'out', sprintf('eva_results_th%d_cl%d.txt',100*threshold,10*cut_Tlength)); % 指定保存路径和文件名
+        fileID = fopen(result_filename, 'w');
+        fprintf(fileID, '===== 分段评估结果均值 =====\n');
+        fprintf(fileID, '时域均方误差(MSE): %.8f\n', Avr_MSE);
+        fprintf(fileID, '时域平均绝对误差(MAE): %.8f\n', Avr_MAE);
+        fprintf(fileID, '频谱对比失真度: %.8f\n', Avr_spectral_contrast_dist);
+        fprintf(fileID, '时频对比曼哈顿距离: %.8f\n', Avr_Time_freq_contrast_dist_Manhattan);
+        fprintf(fileID, '时频对比对数失真度: %.8f\n', Avr_Time_freq_contrast_dist_LSD);
+        fprintf(fileID, '时频对比KL散度: %.8f\n', Avr_Time_freq_contrast_dist_KL);
+        fprintf(fileID, '===== 整体评估结果 =====\n');
+        fprintf(fileID, '整体频谱对比失真度: %.8f\n', spectral_contrast_dist_complete);
+        fprintf(fileID, '整体时频对比曼哈顿距离: %.8f\n', Time_freq_contrast_dist_Manhattan_complete);
+        fprintf(fileID, '整体时频对比对数失真度: %.8f\n', Time_freq_contrast_dist_LSD_complete);
+        fprintf(fileID, '整体时频对比KL散度: %.8f\n', Time_freq_contrast_dist_KL_complete);
+        fclose(fileID);
+    end
+end
+
+%% 可视化对比
+% figure
+% subplot(2,1,1)
+% plot(signal)
+% ylim([-0.5,0.5])
+% subplot(2,1,2)
+% plot(recover_sig_complete)
+% ylim([-0.5,0.5])
+
+% figure('Position', [100 100 1200 800])
+%
+% % 时域信号对比
+% subplot(3,2,[1 2])
+% part_idx = 1:600;
+% plot(t(part_idx), signal(part_idx), 'b', t(part_idx), recover_sig(part_idx), 'r--')
+% title('时域信号对比'), xlabel('时间(s)'), legend('原始信号', '重构信号')
+%
+% % 频谱对比
+% subplot(3,2,3)
+% plot(f, 20*log10(signal_f_3), 'b')
+% hold on
+%
+% recover_sig_f = abs(fft(recover_sig)/L);
+% recover_sig_f = recover_sig_f(1:L/2+1);
+% recover_sig_f(2:end-1) = 2*recover_sig_f(2:end-1);
+% plot(f, 20*log10(recover_sig_f), 'r')
+% ylim([-150 5]) % 合理动态范围限制
+% title('幅度谱对比'), xlabel('频率(Hz)'), ylabel('幅度(dB)')
+%
+% % 频段能量分布
+% subplot(3,2,4)
+% bar([band_energy_orig; band_energy_rec]')
+% % hold on
+% % plot(band_energy_orig - band_energy_rec)
+% set(gca, 'XTickLabel', {'0-500Hz', '500-5kHz', '>5kHz'})
+% title('归一化频段能量分布'), legend('原始信号', '重构信号')
+%
+% % 误差信号
+% subplot(3,2,5)
+% % plot(t, signal - recover_sig)
+% % title('时域误差信号'), xlabel('时间(s)')
+% spectrogram(signal, hamming(1024), 512, 1024, fs, 'yaxis')
+% title('重构信号时频谱')
+%
+% % 时频谱对比
+% subplot(3,2,6)
+% spectrogram(recover_sig, hamming(1024), 512, 1024, fs, 'yaxis')
+% title('重构信号时频谱')
+%
+
+% === 替换原有subplot(3,2,5)和subplot(3,2,6) ===
+%
+% % 原始信号时频谱
+% tic
+% subplot(1,2,1)
+% [s_orig, f_orig, t_orig] = spectrogram(midsignal, hamming(1024), 512, 1024, fs, 'yaxis');
+% imagesc(t_orig, f_orig, 10*log10(abs(s_orig))) % 转换为dB显示
+% axis xy; colorbar; clim([-130 20]); % 统一色标范围
+% title('原始信号时频谱'), xlabel('时间(s)'), ylabel('频率(Hz)')
+%
+% % 重构信号时频谱
+% subplot(1,2,2)
+% [s_rec, f_rec, t_rec] = spectrogram(recover_sig, hamming(1024), 512, 1024, fs, 'yaxis');
+% imagesc(t_rec, f_rec, 10*log10(abs(s_rec)))
+% axis xy; colorbar; clim([-130 20]); % 保持与原始信号相同的色标
+% title('重构信号时频谱'), xlabel('时间(s)'), ylabel('频率(Hz)')

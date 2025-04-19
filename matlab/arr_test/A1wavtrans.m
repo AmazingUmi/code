@@ -12,7 +12,7 @@ clear pathstr tmp index;
 wav_subfolders = {'Class A','Class B','Class C','Class D','Class E'};
 wav_folder_total = 'G:\database\shipsEar\shipsEar_classified\origin_raw';
 %环境噪声似乎不应该进行这样的扩展,'Class E'
-Signal_folder_path = 'G:\database\shipsEar\Shipsear_signal_folder';
+Signal_folder_path = 'G:\database\shipsEar\Shipsear_signal_folder0416';
 % 检查目标文件夹是否存在，如果不存在则创建
 if ~exist(Signal_folder_path, 'dir')
     mkdir(Signal_folder_path);
@@ -68,7 +68,7 @@ for j = 1:length(wav_subfolders)
             sig_amplitude = sig_peaks;
             sig_phase = signal_f_3_phi(sig_locs);
             %滤除10Hz以下频率，以及fs/2以上的频率
-            freq_idx = (sig_freq >= 10) & (sig_freq <= fs/2);
+            freq_idx = (sig_freq >= 10) & (sig_freq <= 5000);
             sig_amplitude = sig_amplitude(freq_idx);
             sig_freq = sig_freq(freq_idx);
             sig_phase = sig_phase(freq_idx);

@@ -14,25 +14,26 @@ woa23_dir = [EnviromentsDATA_PATH,'\target_WOA23_mat'];
 [ETOPO, WOA23] = load_data_new(etop_dir, woa23_dir);
 clear etop_dir woa23_dir EnviromentsDATA_PATH;
 %% 设置环境路径
-sign = 3; %shallow sea = 1, Transition zone = 2, Deepsea = 3
+ENVpack_PATH = 'G:\database\Enhanced_shipsEar0418trans';
+sign = 1; %shallow sea = 1, Transition zone = 2, Deepsea = 3
 % 目标点位参数
 if sign == 1
     % Shallow Sea
-    ENVall_folder = fullfile('G:\database\Enhanced_shipsEar0405','Shallow');
+    ENVall_folder = fullfile(ENVpack_PATH,'Shallow');
     lat = [19.50 7.10 23.30 11.00 9.50 20.20];
     lon = [107.00 117.80 118.20 121.00 107.50 112.00];
     ReceiveRange = [1, 5, 10];    % 接收距离
     ReceiveDepth = [10, 20, 30];
 elseif sign ==2
     % Transition zone
-    ENVall_folder = fullfile('G:\database\Enhanced_shipsEar0405','Transition');
+    ENVall_folder = fullfile(ENVpack_PATH,'Transition');
     lat = [18.80 8.20 20.40 15.10 14.10 17.00];
     lon = [114.30 118.50 117.60 123.00 110.10 112.40];
     ReceiveRange = [5, 30, 60];
     ReceiveDepth = [25, 50, 100, 300];
 else
     % Deep Sea
-    ENVall_folder = fullfile('G:\database\Enhanced_shipsEar0405','Deep');
+    ENVall_folder = fullfile(ENVpack_PATH,'Deep');
     lat = [17.80 21.90 13.90 6.00 18.00 11.90];
     lon = [117.90 122.50 116.20 123.00 124.00 113.00];
     ReceiveRange = [5, 30, 60];

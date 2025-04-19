@@ -1,0 +1,2 @@
+﻿  A3envfilemade.cpp
+E:\visual studio\VC\Tools\MSVC\14.33.31629\include\yvals.h(12,10): fatal  error C1083: 无法打开包括文件: “crtdbg.h”: No such file or directory

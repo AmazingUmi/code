@@ -1,0 +1,5 @@
+g++ -std=c++11 -fopenmp -O2 -o bellhop_parallel_new c++time_new.cpp
+
+
+/public/home/amazingumi/temp/code/bellhop_parallel_new /public/home/amazingumi/temp/test/Rr3/envfilefolder
+find /public/home/amazingumi/temp/test/Rr3/envfilefolder -type f -not -name "*.arr" -exec rm {} +

@@ -20,8 +20,10 @@ T = L/fs;
 t = (0:L-1)/fs;
 
 %% 切分信号
-cut_Tlength = 1;                     % 单位为秒（s）
-threshold = 0.05;                    % 滤除阈值
+cut_Tlength_vec = 1;                     % 单位为秒（s）
+threshold_vec = [0.01, 0.03, 0.05, 0.10,0.75];                    % 滤除阈值
+for a = 1:5
+    threshold = 0;
 N = floor(T/cut_Tlength);            % 分段段数
 cut_length = cut_Tlength * fs;
 Nsignal = zeros(N,cut_length);
@@ -172,7 +174,7 @@ Avr_Time_freq_contrast_dist_KL = mean(Time_freq_contrast_dist_KL);
 
 
 %% 显示评估结果并输出到TXT文件
-result_filename = fullfile(pathstr, 'out\evaluation_results.txt'); % 指定保存路径和文件名
+result_filename = fullfile(pathstr, 'out', sprintf('eva_results_th%d_cl%d.txt',100*threshold,10*cut_Tlength)); % 指定保存路径和文件名
 fileID = fopen(result_filename, 'w');
 fprintf(fileID, '===== 分段评估结果均值 =====\n');
 fprintf(fileID, '时域均方误差(MSE): %.8f\n', Avr_MSE);
@@ -189,13 +191,13 @@ fprintf(fileID, '整体时频对比KL散度: %.8f\n', Time_freq_contrast_dist_KL
 fclose(fileID);
 
 %% 可视化对比
-figure
-subplot(2,1,1)
-plot(signal)
-ylim([-0.5,0.5])
-subplot(2,1,2)
-plot(recover_sig_complete)
-ylim([-0.5,0.5])
+% figure
+% subplot(2,1,1)
+% plot(signal)
+% ylim([-0.5,0.5])
+% subplot(2,1,2)
+% plot(recover_sig_complete)
+% ylim([-0.5,0.5])
 
 % figure('Position', [100 100 1200 800])
 %

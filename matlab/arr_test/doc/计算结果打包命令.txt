@@ -1,0 +1,1 @@
+tar -czf results_0411.tar.gz --exclude="*.env" --exclude="*.prt" --exclude="*.trc" --exclude="*.brc" --exclude="*.bty" --exclude="*.ssp"  /public/home/amazingumi/Enhanced_shipsEar0405

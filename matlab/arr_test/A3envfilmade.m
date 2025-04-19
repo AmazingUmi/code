@@ -35,14 +35,16 @@ for i = 1:length(ENV_classes)
             cd(ENV_Rr_folder)
             fileList = dir('ENV*');
             envfilename = [fileList(1).name(1:end-4),'.env'];
+            envallname = fileList(1).name(1:end-4);
             newfilename = {};
+            fileContents = fileread(envfilename);
+            baselines = strsplit(fileContents, '\n');
 
             %改成parfor
             parfor m = 1:length(Analy_freq_all)
                 newfilename{m} = sprintf('test_%d', m);
                 %修改循环中，环境文件里的频率
-                fileContents = fileread(envfilename);
-                lines = strsplit(fileContents, '\n');
+                lines = baselines;
                 newline = sprintf('  %d  	 	 	 ! Frequency (Hz) ',Analy_freq_all(m));
                 lines{2} = newline;
                 newContents = strjoin(lines, '\n');
