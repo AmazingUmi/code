@@ -11,7 +11,7 @@ clear tmp index;
 
 %% 读取原始时域信号
 wav_folder_total = 'G:\database\shipsEar\shipsEar_classified\origin_raw';
-filename = fullfile(wav_folder_total,'Class A/15__10_07_13_radaUno_Pasa.wav');
+filename = fullfile(wav_folder_total,'Class A\15__10_07_13_radaUno_Pasa.wav');
 [signal, fs] = audioread(filename);
 signal = signal ./ max(abs(signal)); %归一化
 signal = signal';

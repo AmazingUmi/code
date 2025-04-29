@@ -15,7 +15,7 @@ sig_mat_files(1) = [];
 Analy_freq_all = [];
 Analy_freq_all_file = fullfile(Signal_folder_path, 'Analy_freq_all.mat');
 
-threshold = 0.01;
+threshold = 0.05;
 
 %% 幅值全局排序
 tic

@@ -1,18 +1,18 @@
 %% 初始化
 clear; close all; clc;
 tmp = matlab.desktop.editor.getActive;
-index = strfind(tmp.Filename, '\') ;
+index = strfind(tmp.Filename, '/') ;
 pathstr = tmp.Filename(1:index(end)-1);
 cd(pathstr);
 addpath(pathstr);
-addpath(fullfile(pathstr(1:end-9),'underwateracoustic\bellhop_fundation\function'));
+addpath(fullfile(pathstr(1:end-9),'underwateracoustic/bellhop_fundation/function'));
 clear pathstr tmp index;
 %% 设置环境路径
-ENVall_folder = 'G:\database\Enhanced_shipsEar0405';
+ENVall_folder = '/Volumes/192.168.7.8/database/Enhanced_shipsEar0405';
 ENV_classes = {'Shallow', 'Transition', 'Deep'};
 
-Signal_folder_path = 'G:\database\shipsEar\Shipsear_signal_folder0416';
-load([Signal_folder_path,'\Analy_freq_all.mat']);
+Signal_folder_path = '/Volumes/192.168.7.8/database/shipsEar/Shipsear_signal_folder0416';
+load([Signal_folder_path,'/Analy_freq_all.mat']);
 sig_mat_files = dir(fullfile(Signal_folder_path, '*.mat'));
 sig_mat_files(1) = [];
 Amp_source = 1e5; 
@@ -43,7 +43,7 @@ for i = 2%:length(ENV_classes)
             else
                 ReceiveDepth = [25, 50, 100, 300];
             end
-            for m = 3:length(ReceiveDepth)
+            for m = 1:length(ReceiveDepth)
                 ARR_tmp = ARR(:,m);
                 for n = 1:length(sig_mat_files)
                     Analy_freq = sig_mat_struct(n).Analy_freq;

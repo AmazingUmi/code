@@ -1,0 +1,17 @@
+2025-04-26 17:38:51,703 - INFO - === Training started ===
+2025-04-26 17:41:11,611 - INFO - Epoch 1 - Train Loss: 0.7892
+2025-04-26 17:41:49,400 - INFO - Epoch 1 - Val Accuracy: 0.7601
+2025-04-26 17:42:42,831 - INFO - Epoch 2 - Train Loss: 0.4415
+2025-04-26 17:42:51,653 - INFO - Epoch 2 - Val Accuracy: 0.8472
+2025-04-26 17:43:41,179 - INFO - Epoch 3 - Train Loss: 0.3215
+2025-04-26 17:43:49,891 - INFO - Epoch 3 - Val Accuracy: 0.8660
+2025-04-26 17:44:40,328 - INFO - Epoch 4 - Train Loss: 0.2454
+2025-04-26 17:44:48,805 - INFO - Epoch 4 - Val Accuracy: 0.8758
+2025-04-26 17:45:38,570 - INFO - Epoch 5 - Train Loss: 0.2042
+2025-04-26 17:45:47,156 - INFO - Epoch 5 - Val Accuracy: 0.8827
+2025-04-26 17:46:37,019 - INFO - Epoch 6 - Train Loss: 0.1661
+2025-04-26 17:46:45,891 - INFO - Epoch 6 - Val Accuracy: 0.8893
+2025-04-26 17:47:39,356 - INFO - Epoch 7 - Train Loss: 0.1541
+2025-04-26 17:47:48,301 - INFO - Epoch 7 - Val Accuracy: 0.8868
+2025-04-26 17:48:41,208 - INFO - Epoch 8 - Train Loss: 0.1268
+2025-04-26 17:48:50,183 - INFO - Epoch 8 - Val Accuracy: 0.9113
