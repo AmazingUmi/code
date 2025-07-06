@@ -1,0 +1,2 @@
+This is a C++ example file
+Demonstrating file write operations
