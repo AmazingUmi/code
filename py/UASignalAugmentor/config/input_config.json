@@ -1,0 +1,9 @@
+{
+  "input_path": "G:/code/py/UASignalAugmentor/data/raw",
+  "output_path": "G:/code/py/UASignalAugmentor/data/processed",
+  "ship_classes": ["Class A", "Class B", "Class C", "Class D", "Class E"],
+  "segment_length": 1.0,
+  "threshold": 0.01,
+  "freq_range": [10, 10000],
+  "freq_precision": 1
+}

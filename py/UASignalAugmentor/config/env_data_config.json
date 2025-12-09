@@ -1,0 +1,13 @@
+{
+  "env_data_path": "G:/database/EnviromentsDATA",
+  "etopo": {
+    "file_path": "G:/database/EnviromentsDATA/targetETOPO.mat",
+    "description": "ETOPO地形数据（全球海底地形）"
+  },
+  "woa23": {
+    "folder_path": "G:/database/EnviromentsDATA/target_WOA23_mat",
+    "description": "WOA23声速剖面数据（月度/季度/年度）",
+    "time_index": 1,
+    "time_index_description": "1-12:每月, 13-16:季度(冬春夏秋), 17:全年"
+  }
+}

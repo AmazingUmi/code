@@ -1,0 +1,29 @@
+{
+  "_comment": "FrequencyAnalyzer 频率分析器配置文件",
+  
+  "input_path": "G:/database/shipsEar/shipsEar_classified/origin_raw",
+  "output_path": "data/processed",
+  
+  "ship_classes": [
+    "Class A",
+    "Class B", 
+    "Class C",
+    "Class D",
+    "Class E"
+  ],
+  
+  "segment_length": 1.0,
+  "threshold": 0.05,
+  "freq_range": [10, 5000],
+  "freq_precision": 1,
+  
+  "_descriptions": {
+    "input_path": "原始音频文件根目录",
+    "output_path": "处理结果输出目录", 
+    "ship_classes": "要处理的船舶类别列表",
+    "segment_length": "音频分段长度（秒）",
+    "threshold": "幅值阈值（相对最大值的比例，0-1）",
+    "freq_range": "频率范围 [最小值, 最大值] (Hz)",
+    "freq_precision": "频率精度（小数位数）"
+  }
+}

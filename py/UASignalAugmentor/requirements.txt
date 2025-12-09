@@ -1,0 +1,5 @@
+# UASignalAugmentor - Requirements
+# 水声信号处理与数据集生成系统
+numpy>=1.24.0,<2.0.0          # 数组运算、FFT、线性代数
+soundfile>=0.12.1              # 高效音频I/O (WAV读写)
+tqdm>=4.65.0                   # 进度条显示

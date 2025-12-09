@@ -1,0 +1,148 @@
+{
+  "coordinate_groups": [
+    {
+      "group_id": "ENV1",
+      "lat": 19.50,
+      "lon": 107.00,
+      "zone_type": "Shallow",
+      "receive_ranges": [1, 5, 10],
+      "receive_depths": [10, 20, 30]
+    },
+    {
+      "group_id": "ENV2",
+      "lat": 7.10,
+      "lon": 117.80,
+      "zone_type": "Shallow",
+      "receive_ranges": [1, 5, 10],
+      "receive_depths": [10, 20, 30]
+    },
+    {
+      "group_id": "ENV3",
+      "lat": 23.30,
+      "lon": 118.20,
+      "zone_type": "Shallow",
+      "receive_ranges": [1, 5, 10],
+      "receive_depths": [10, 20, 30]
+    },
+    {
+      "group_id": "ENV4",
+      "lat": 11.00,
+      "lon": 121.00,
+      "zone_type": "Shallow",
+      "receive_ranges": [1, 5, 10],
+      "receive_depths": [10, 20, 30]
+    },
+    {
+      "group_id": "ENV5",
+      "lat": 9.50,
+      "lon": 107.50,
+      "zone_type": "Shallow",
+      "receive_ranges": [1, 5, 10],
+      "receive_depths": [10, 20, 30]
+    },
+    {
+      "group_id": "ENV6",
+      "lat": 20.20,
+      "lon": 112.00,
+      "zone_type": "Shallow",
+      "receive_ranges": [1, 5, 10],
+      "receive_depths": [10, 20, 30]
+    },
+    {
+      "group_id": "ENV7",
+      "lat": 18.80,
+      "lon": 114.30,
+      "zone_type": "Transition",
+      "receive_ranges": [5, 30, 60],
+      "receive_depths": [25, 50, 100, 300]
+    },
+    {
+      "group_id": "ENV8",
+      "lat": 8.20,
+      "lon": 118.50,
+      "zone_type": "Transition",
+      "receive_ranges": [5, 30, 60],
+      "receive_depths": [25, 50, 100, 300]
+    },
+    {
+      "group_id": "ENV9",
+      "lat": 20.40,
+      "lon": 117.60,
+      "zone_type": "Transition",
+      "receive_ranges": [5, 30, 60],
+      "receive_depths": [25, 50, 100, 300]
+    },
+    {
+      "group_id": "ENV10",
+      "lat": 15.10,
+      "lon": 123.00,
+      "zone_type": "Transition",
+      "receive_ranges": [5, 30, 60],
+      "receive_depths": [25, 50, 100, 300]
+    },
+    {
+      "group_id": "ENV11",
+      "lat": 14.10,
+      "lon": 110.10,
+      "zone_type": "Transition",
+      "receive_ranges": [5, 30, 60],
+      "receive_depths": [25, 50, 100, 300]
+    },
+    {
+      "group_id": "ENV12",
+      "lat": 17.00,
+      "lon": 112.40,
+      "zone_type": "Transition",
+      "receive_ranges": [5, 30, 60],
+      "receive_depths": [25, 50, 100, 300]
+    },
+    {
+      "group_id": "ENV13",
+      "lat": 17.80,
+      "lon": 117.90,
+      "zone_type": "Deep",
+      "receive_ranges": [5, 30, 60],
+      "receive_depths": [25, 50, 100, 300]
+    },
+    {
+      "group_id": "ENV14",
+      "lat": 21.90,
+      "lon": 122.50,
+      "zone_type": "Deep",
+      "receive_ranges": [5, 30, 60],
+      "receive_depths": [25, 50, 100, 300]
+    },
+    {
+      "group_id": "ENV15",
+      "lat": 13.90,
+      "lon": 116.20,
+      "zone_type": "Deep",
+      "receive_ranges": [5, 30, 60],
+      "receive_depths": [25, 50, 100, 300]
+    },
+    {
+      "group_id": "ENV16",
+      "lat": 6.00,
+      "lon": 123.00,
+      "zone_type": "Deep",
+      "receive_ranges": [5, 30, 60],
+      "receive_depths": [25, 50, 100, 300]
+    },
+    {
+      "group_id": "ENV17",
+      "lat": 18.00,
+      "lon": 124.00,
+      "zone_type": "Deep",
+      "receive_ranges": [5, 30, 60],
+      "receive_depths": [25, 50, 100, 300]
+    },
+    {
+      "group_id": "ENV18",
+      "lat": 11.90,
+      "lon": 113.00,
+      "zone_type": "Deep",
+      "receive_ranges": [5, 30, 60],
+      "receive_depths": [25, 50, 100, 300]
+    }
+  ]
+}

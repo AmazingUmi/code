@@ -1,0 +1,75 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# 虚拟环境
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 测试覆盖率
+.coverage
+htmlcov/
+.pytest_cache/
+
+# 日志
+*.log
+logs/*.log
+
+# 数据文件 (根据需要调整)
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+data/signals/*
+!data/signals/.gitkeep
+data/spectrograms/*
+!data/spectrograms/.gitkeep
+
+# 输出文件
+output/train/*
+output/val/*
+output/test/*
+!output/*/.gitkeep
+
+# 临时文件
+*.tmp
+*.bak
+.DS_Store
+Thumbs.db
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# 性能分析
+*.prof
+*.lprof
+
+# MATLAB遗留文件
+*.asv
+*.m~

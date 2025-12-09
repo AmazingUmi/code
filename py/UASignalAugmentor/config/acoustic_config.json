@@ -1,0 +1,27 @@
+{
+  "output_path": "data/env_files",
+  "source": {
+    "depth": 10,
+    "range": 0,
+    "description": "声源深度(m)和距离(km)"
+  },
+  "azimuth": 0,
+  "azimuth_description": "测线方向（正北为0°，顺时针）",
+  "bellhop_params": {
+    "run_type": "AB",
+    "top_option": "CFFT",
+    "sea_state_level": 0,
+    "freq": 500,
+    "freq_description": "默认中心频率(Hz)，后续会被A1频率替换",
+    "bottom_option": "F*",
+    "base_type": "IMG",
+    "alpha_b": 0.05,
+    "beam_option": {
+      "type": "CS",
+      "epmult": 0.3,
+      "rLoop": 1,
+      "Nimage": 1,
+      "Ibwin": 1
+    }
+  }
+}
