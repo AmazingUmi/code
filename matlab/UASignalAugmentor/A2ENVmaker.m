@@ -29,13 +29,13 @@ pathstr = tmp.Filename(1:index(end)-1);
 cd(pathstr);
 addpath(pathstr);
 addpath([pathstr '\function']);
-clear pathstr tmp index;
+clear tmp index;
 
 %% 加载海洋环境数据
 fprintf('===== 开始加载海洋环境数据 =====\n');
 
 % 数据路径配置
-OceanDataPath = 'G:\code\matlab\UASignalAugmentor\data\OceanData';
+OceanDataPath = fullfile(pathstr, 'data\OceanData');
 ETOPOName     = 'ETOPO2022.mat';
 WOAName       = 'woa23_%02d.mat';
 
@@ -48,7 +48,7 @@ clear OceanDataPath ETOPOName WOAName;
 %% 加载配置文件
 fprintf('===== 加载配置文件 =====\n');
 
-OriginEnvPackPath = 'G:\code\matlab\UASignalAugmentor\data\OriginEnvPack';
+OriginEnvPackPath = fullfile(pathstr, 'data\OriginEnvPack');
 
 % 指定配置文件名
 ConfigName = 'ConfigDeep.mat';  % 'ConfigShallow.mat'/'ConfigTransition.mat'/'ConfigDeep.mat'

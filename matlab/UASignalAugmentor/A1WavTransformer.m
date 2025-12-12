@@ -36,16 +36,16 @@ pathstr = tmp.Filename(1:index(end)-1);
 cd(pathstr);
 addpath(pathstr);
 addpath(fullfile(pathstr, 'function'));
-clear pathstr tmp index;
+clear tmp index;
 
 %% 配置参数
 fprintf('===== 开始音频信号频率提取 =====\n\n');
 
 % 路径配置
 subfolders   = {'Class A', 'Class B', 'Class C', 'Class D', 'Class E'};
-input_path   = 'G:\code\matlab\UASignalAugmentor\data\raw';
-output_path  = 'G:\code\matlab\UASignalAugmentor\data\processed';
-FreqAll_name = 'Analy_freq_all.mat';
+input_path   = fullfile(pathstr,'data\raw');
+output_path  = fullfile(pathstr,'data\processed');
+FreqAllName = 'Analy_freq_all.mat';
 
 % 检查目标文件夹是否存在，如果不存在则创建
 if ~exist(output_path, 'dir')
@@ -120,7 +120,7 @@ end
 
 % 保存全局频率汇总
 fprintf('===== 保存全局频率汇总 =====\n');
-freq_all_path = fullfile(output_path, FreqAll_name);
+freq_all_path = fullfile(output_path, FreqAllName);
 save(freq_all_path, 'Analy_freq_all');
 
 elapsed_time = toc;

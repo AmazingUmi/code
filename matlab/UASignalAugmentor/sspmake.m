@@ -26,7 +26,7 @@ clear pathstr tmp index;
 %% 加载海洋环境数据
 fprintf('===== 加载海洋环境数据 =====\n');
 
-OceanDataPath = 'G:\code\matlab\UASignalAugmentor\data\OceanData';
+OceanDataPath = fullfile(pathstr, 'data\OceanData');
 ETOPOName     = 'ETOPO2022.mat';
 WOAName       = 'woa23_%02d.mat';
 
@@ -62,12 +62,12 @@ lon = linspace(coordS.lon, coordE.lon, n);
 lat = linspace(coordS.lat, coordE.lat, n);
 
 % 读取声速剖面及地形
-[seaDepth, ssp_raw, SSP] = get_env(ETOPO, WOA, lon, lat, timeIdx);
+[~, ~, SSP] = get_env(ETOPO, WOA, lon, lat, timeIdx);
 
 fprintf('声速剖面提取完成\n');
 fprintf('深度点数: %d, 距离点数: %d\n\n', length(SSP.z), n);
 
-clear coordE coordS lon lat ssp_raw;
+clear coordE coordS lon lat;
 %% 添加中尺度现象
 fprintf('===== 添加中尺度现象 =====\n');
 

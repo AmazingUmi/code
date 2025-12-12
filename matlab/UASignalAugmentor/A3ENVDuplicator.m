@@ -49,14 +49,14 @@ index = strfind(tmp.Filename, '\');
 pathstr = tmp.Filename(1:index(end)-1);
 cd(pathstr);
 addpath(pathstr);
-clear pathstr tmp index;
+clear tmp index;
 
 %% 加载配置和频率数据
 fprintf('===== 开始环境文件频率扩展 =====\n\n');
 
 % 路径配置
-OriginEnvPackPath    = 'G:\code\matlab\UASignalAugmentor\data\OriginEnvPack';  % 环境文件总文件夹
-Signal_path          = 'G:\code\matlab\UASignalAugmentor\data\processed';
+OriginEnvPackPath    = fullfile(pathstr, 'data\OriginEnvPack');  % 环境文件总文件夹
+Signal_path          = fullfile(pathstr,'data\processed');
 
 % 加载配置文件
 ConfigName = 'ConfigDeep.mat';  % 'ConfigShallow.mat'/'ConfigTransition.mat'/'ConfigDeep.mat'

@@ -23,11 +23,11 @@ pathstr = tmp.Filename(1:index(end)-1);
 cd(pathstr);
 addpath(pathstr);
 addpath([pathstr '\function']);
-clear pathstr tmp index;
+clear tmp index;
 
 %% 路径设置
-OriginEnvPackPath = 'G:\code\matlab\UASignalAugmentor\data\OriginEnvPack';
-ConfigOutputPath  = 'G:\code\matlab\UASignalAugmentor\data\OriginEnvPack';
+OriginEnvPackPath = fullfile(pathstr, 'data\OriginEnvPack');
+ConfigOutputPath  = fullfile(pathstr, 'data\OriginEnvPack');
 OutputName = 'Config';
 
 % 初始化配置结构体

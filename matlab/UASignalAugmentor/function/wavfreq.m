@@ -1,11 +1,13 @@
-function [fs, Ndelay, Analyrecord, Analy_freq] = wavfreq(audioname, FreqRange, cut_Tlength)
+function [fs, Ndelay, Analyrecord, Analy_freq] = wavfreq(audioname, FreqRange, cut_Tlength, fs_input)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % WAVFREQ 音频信号频率分析函数
 %   对音频信号进行分段处理，提取每段的频率成分、幅值和相位信息
 %
 % 输入参数:
-%   audioname - 音频文件路径（字符串）
-%   cut_Tlength - 信号分段时间长度（秒）
+%   audioname - 音频文件路径（字符串）或信号数组（列向量）
+%   FreqRange - 频率范围 [Hz] (默认: [10, 5000])
+%   cut_Tlength - 信号分段时间长度（秒）(默认: 1)
+%   fs_input - 采样频率（仅当 audioname 为数组时需要）
 %
 % 输出参数:
 %   fs - 音频采样频率（Hz）
@@ -17,27 +19,47 @@ function [fs, Ndelay, Analyrecord, Analy_freq] = wavfreq(audioname, FreqRange, c
 %   Analy_freq - 所有信号段的频率集合（去重后）
 %
 % 功能说明:
-%   1. 读取音频文件并获取采样频率
+%   1. 读取音频文件或使用内存中的信号数组
 %   2. 根据指定时间长度将信号分段
 %   3. 对每段信号进行FFT变换，提取频率成分
-%   4. 滤除10Hz以下和5000Hz以上的频率分量
+%   4. 滤除指定频率范围外的频率分量
 %   5. 按幅值降序排列频率分量
 %   6. 返回每段信号的分析结果和全局频率集合
 %
 % 示例:
-%   [fs, Ndelay, Analyrecord, Analy_freq] = wavfreq('ship_signal.wav', 1.0);
+%   % 文件路径输入
+%   [fs, Ndelay, Analyrecord, Analy_freq] = wavfreq('ship_signal.wav', [10, 5000], 1.0);
+%   
+%   % 数组输入
+%   [signal, fs] = audioread('ship_signal.wav');
+%   [fs, Ndelay, Analyrecord, Analy_freq] = wavfreq(signal, [10, 5000], 1.0, fs);
 %
 % 作者: [猫猫头]
 % 日期: [2025-12-03]
+% 更新: [2025-12-12] - 支持内存数组输入
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 参数默认值设置
-if nargin < 2 || isempty(cut_Tlength) || isempty(FreqRange)
+if nargin < 2 || isempty(FreqRange)
+    FreqRange = [10, 5000];
+end
+if nargin < 3 || isempty(cut_Tlength)
     cut_Tlength = 1;
-    FreqRange   = [10, 5000];
-
 end
 
-[signal, fs] = audioread(audioname);%读取实际信号、采样频率
+% 判断输入类型：文件路径 or 信号数组
+if ischar(audioname) || isstring(audioname)
+    % 文件路径输入
+    [signal, fs] = audioread(audioname);
+elseif isnumeric(audioname)
+    % 数组输入
+    signal = audioname;
+    if nargin < 4 || isempty(fs_input)
+        error('当输入为信号数组时，必须提供采样频率 fs_input');
+    end
+    fs = fs_input;
+else
+    error('audioname 必须是文件路径（字符串）或信号数组（数值）');
+end
 L = length(signal); %信号长度
 T = L/fs;
 

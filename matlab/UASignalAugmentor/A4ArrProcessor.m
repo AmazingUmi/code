@@ -44,14 +44,15 @@ pathstr = tmp.Filename(1:index(end)-1);
 cd(pathstr);
 addpath(pathstr);
 addpath(fullfile(pathstr, 'function'));
-clear pathstr tmp index;
+clear tmp index;
 
 %% 设置环境路径
 fprintf('===== 开始处理到达结构文件 =====\n\n');
 
-ENVall_folder = 'G:\code\matlab\UASignalAugmentor\data\OriginEnvPack';
-ENV_classes = {'Shallow', 'Transition', 'Deep'};
-Signal_path = 'G:\code\matlab\UASignalAugmentor\data\processed';
+ENVall_folder = fullfile(pathstr, 'data\OriginEnvPack');
+Signal_path   = fullfile(pathstr,'data\processed');
+ENV_classes   = {'Shallow', 'Transition', 'Deep'};
+
 
 % 加载频率数据
 fprintf('加载频率数据...\n');
