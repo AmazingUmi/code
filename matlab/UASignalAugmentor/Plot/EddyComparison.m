@@ -71,14 +71,14 @@ freq = 100;     % Hz
 
 % 声源/接收器深度
 src_depth = 50;     % 声源深度 (m)
-rcv_depth = 0:10:1000;  % 接收器深度 (m)
+rcv_depth = 0:10:3000;  % 接收器深度 (m)
 
 % 涡旋参数
 eddy_params.rc = 100;   % 涡心位置 (km)
 eddy_params.zc = 600;   % 涡心深度 (m)
 eddy_params.DR = 70;    % 水平尺度 (km)
-eddy_params.DZ = 400;   % 竖直尺度 (m)
-eddy_params.DC = -40;   % 强度 (m/s, 负=冷涡)
+eddy_params.DZ = 500;   % 竖直尺度 (m)
+eddy_params.DC = -200;  % 强度 (m/s, 负=冷涡)
 
 fprintf('声源: (%.1f°E, %.1f°N), 深度=%d m\n', coordS.lon, coordS.lat, src_depth);
 fprintf('方位角=%d°, 距离=%.1f km, 频率=%.1f Hz\n', azi, rmax, freq);
@@ -95,6 +95,7 @@ n = rmax/dr + 1;
 lon = linspace(coordS.lon, coordE.lon, n);
 lat = linspace(coordS.lat, coordE.lat, n);
 [Depth, ssp_raw, SSP] = get_env(ETOPO, WOA, lon, lat, timeIdx);
+% rcv_depth = 0:10:max(Depth);  % 接收器深度 (m)
 fprintf('声速剖面提取完成\n\n');
 
 %% 生成两组环境文件
@@ -120,76 +121,79 @@ fprintf('环境文件生成完成\n\n');
 fprintf('===== 运行Bellhop =====\n');
 bellhop_path = fullfile(project_root, 'CallBell', 'bellhop.exe');
 
-fprintf('计算无涡场景...\n');
+% 检查 bellhop.exe 是否存在
+if ~exist(bellhop_path, 'file')
+    error('Bellhop 可执行文件不存在: %s', bellhop_path);
+end
+fprintf('Bellhop 路径: %s\n', bellhop_path);
+
+% 保存当前目录
+current_dir = pwd;
+
+% 切换到输出目录执行 Bellhop
 cd(output_dir);
-system(sprintf('"%s" NoEddy', bellhop_path));
 
-fprintf('计算含涡场景...\n');
-system(sprintf('"%s" WithEddy', bellhop_path));
+try
+    fprintf('计算无涡场景...\n');
+    [status1, cmdout1] = system(sprintf('"%s" NoEddy', bellhop_path));
+    if status1 ~= 0
+        fprintf('警告：无涡场景计算可能出错\n输出:\n%s\n', cmdout1);
+    else
+        fprintf('无涡场景计算成功\n');
+    end
+    
+    fprintf('计算含涡场景...\n');
+    [status2, cmdout2] = system(sprintf('"%s" WithEddy', bellhop_path));
+    if status2 ~= 0
+        fprintf('警告：含涡场景计算可能出错\n输出:\n%s\n', cmdout2);
+    else
+        fprintf('含涡场景计算成功\n');
+    end
+    
+    fprintf('Bellhop 计算完成\n\n');
+catch ME
+    cd(current_dir);  % 恢复目录
+    rethrow(ME);
+end
 
-fprintf('Bellhop 计算完成\n\n');
+cd(current_dir);  % 恢复目录
 
 %% 读取并对比结果
 fprintf('===== 读取计算结果 =====\n');
 
-% 读取传播损失
-[~, ~, ~, ~, Pos1, pressure1] = read_shd(fullfile(output_dir, 'NoEddy.shd'));
-[~, ~, ~, ~, Pos2, pressure2] = read_shd(fullfile(output_dir, 'WithEddy.shd'));
+% 检查输出文件是否存在
+shd_file1 = fullfile(output_dir, 'NoEddy.shd');
+shd_file2 = fullfile(output_dir, 'WithEddy.shd');
 
-% 计算传播损失 (dB)
-TL_no_eddy = -20*log10(abs(pressure1));
-TL_with_eddy = -20*log10(abs(pressure2));
-TL_diff = TL_with_eddy - TL_no_eddy;
+if ~exist(shd_file1, 'file')
+    error('无涡场景输出文件不存在: %s', shd_file1);
+end
+if ~exist(shd_file2, 'file')
+    error('含涡场景输出文件不存在: %s', shd_file2);
+end
 
 fprintf('结果读取完成\n\n');
 
 %% 可视化
 fprintf('===== 绘制对比图 =====\n');
 
-figure('Position', [100, 100, 1400, 800]);
+% 设置全局变量（plotshd需要）
+global units jkpsflag
+units = 'km';  % 使用公里作为单位
+jkpsflag = 0;  % 不使用固定尺寸
 
-% 无涡场景
-subplot(2,2,1);
-pcolor(Pos1.r.range, Pos1.r.z, TL_no_eddy);
-shading interp; colorbar;
-caxis([60, 120]);
-set(gca, 'YDir', 'Reverse');
-xlabel('Range (km)'); ylabel('Depth (m)');
-title('无涡传播损失 (dB)');
+% 创建图形窗口
+figure('Position', [100, 100, 1600, 900]);
 
-% 含涡场景
-subplot(2,2,2);
-pcolor(Pos2.r.range, Pos2.r.z, TL_with_eddy);
-shading interp; colorbar;
-caxis([60, 120]);
-set(gca, 'YDir', 'Reverse');
-xlabel('Range (km)'); ylabel('Depth (m)');
-title('含涡传播损失 (dB)');
+% 图1: 无涡场景 - 使用plotshd
+plotshd(shd_file1);
+title('无涡传播损失');
 
-% 差异
-subplot(2,2,3);
-pcolor(Pos1.r.range, Pos1.r.z, TL_diff);
-shading interp; colorbar;
-caxis([-10, 10]);
-colormap(gca, 'jet');
-set(gca, 'YDir', 'Reverse');
-xlabel('Range (km)'); ylabel('Depth (m)');
-title('传播损失差异 (含涡 - 无涡, dB)');
+% 图2: 含涡场景 - 使用plotshd
+figure
+plotshd(shd_file2);
+title('含涡传播损失');
 
-% 声速剖面对比
-subplot(2,2,4);
-r = linspace(0, rmax, size(SSP.c, 2));
-hold on;
-pcolor(r, SSP_no_eddy.z, SSP_no_eddy.c);
-shading interp;
-contour(r, SSP_with_eddy.z, SSP_with_eddy.c, 20, 'k', 'LineWidth', 0.5);
-colorbar;
-set(gca, 'YDir', 'Reverse');
-xlabel('Range (km)'); ylabel('Depth (m)');
-title('声速剖面 (底图:无涡, 等值线:含涡)');
-
-% 保存图像
-saveas(gcf, fullfile(output_dir, 'EddyComparison.png'));
 fprintf('对比图已保存\n\n');
 
 fprintf('===== 分析完成 =====\n');
@@ -205,9 +209,9 @@ function create_bellhop_env(env_name, freq, src_depth, rcv_depth, rmax, dr, ...
     
     % SSP结构
     SSP_env.NMedia = 1;
-    SSP_env.N = [length(ssp_raw(:,1))];
-    SSP_env.sigma = [0];
-    SSP_env.depth = [0, max(Depth)];
+    SSP_env.N = 0;
+    SSP_env.sigma = 0;
+    SSP_env.depth = [0, ssp_raw(end, 1)];
     SSP_env.raw(1).z = ssp_raw(:,1);
     SSP_env.raw(1).alphaR = ssp_raw(:,2);
     SSP_env.raw(1).betaR = zeros(size(ssp_raw(:,1)));
@@ -216,8 +220,8 @@ function create_bellhop_env(env_name, freq, src_depth, rcv_depth, rmax, dr, ...
     SSP_env.raw(1).betaI = zeros(size(ssp_raw(:,1)));
     
     % 边界条件
-    Bdry.Top.Opt = 'CVW';
-    Bdry.Bot.Opt = 'A';
+    Bdry.Top.Opt = 'QVW';
+    Bdry.Bot.Opt = 'A*';
     Bdry.Bot.HS.alphaR = 1600;
     Bdry.Bot.HS.betaR = 0;
     Bdry.Bot.HS.rho = 1.5;
@@ -227,14 +231,14 @@ function create_bellhop_env(env_name, freq, src_depth, rcv_depth, rmax, dr, ...
     % 位置
     Pos.s.z = src_depth;
     Pos.r.z = rcv_depth;
-    Pos.r.range = 0:dr:rmax;
+    Pos.r.range = 0:2*dr:rmax;
     
     % 波束参数
-    Beam.RunType = 'C';
+    Beam.RunType = 'CB';
     Beam.Nbeams = 0;
-    Beam.alpha = [-15, 15];
+    Beam.alpha = [-90, 90];
     Beam.deltas = 0;
-    Beam.Box.z = max(Depth);
+    Beam.Box.z = ceil(max(Depth))+500;
     Beam.Box.r = rmax;
     
     cInt.Low = 1400;
