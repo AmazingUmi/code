@@ -1,0 +1,5 @@
+(base) ❯ ./BellParallelMac /Users/luyiyang/Database/code/matlab/UASignalAugmentor/data/OriginEnvPack/Deep/ENV1/Rr1/EnvTemplate
+切换到工作目录: /Users/luyiyang/Database/code/matlab/UASignalAugmentor/data/OriginEnvPack/Deep/ENV1/Rr1/EnvTemplate
+程序运行时间: 12.352秒
+
+code/matlab/UASignalAugmentor/CallBell git:master*  13s

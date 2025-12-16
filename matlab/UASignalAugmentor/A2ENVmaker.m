@@ -24,18 +24,17 @@
 %% 初始化
 clear; close all; clc;
 tmp = matlab.desktop.editor.getActive;
-index = strfind(tmp.Filename, '\');
-pathstr = tmp.Filename(1:index(end)-1);
+pathstr = fileparts(tmp.Filename);
 cd(pathstr);
 addpath(pathstr);
-addpath([pathstr '\function']);
+addpath(fullfile(pathstr, 'function'));
 clear tmp index;
 
 %% 加载海洋环境数据
 fprintf('===== 开始加载海洋环境数据 =====\n');
 
 % 数据路径配置
-OceanDataPath = fullfile(pathstr, 'data\OceanData');
+OceanDataPath = fullfile(pathstr, 'data','OceanData');
 ETOPOName     = 'ETOPO2022.mat';
 WOAName       = 'woa23_%02d.mat';
 
@@ -48,7 +47,7 @@ clear OceanDataPath ETOPOName WOAName;
 %% 加载配置文件
 fprintf('===== 加载配置文件 =====\n');
 
-OriginEnvPackPath = fullfile(pathstr, 'data\OriginEnvPack');
+OriginEnvPackPath = fullfile(pathstr, 'data','OriginEnvPack');
 
 % 指定配置文件名
 ConfigName = 'ConfigDeep.mat';  % 'ConfigShallow.mat'/'ConfigTransition.mat'/'ConfigDeep.mat'

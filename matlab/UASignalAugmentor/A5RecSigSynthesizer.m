@@ -44,8 +44,7 @@
 %% 初始化
 clear; close all; clc;
 tmp = matlab.desktop.editor.getActive;
-index = strfind(tmp.Filename, '\');
-pathstr = tmp.Filename(1:index(end)-1);
+pathstr = fileparts(tmp.Filename);
 cd(pathstr);
 addpath(pathstr);
 addpath(fullfile(pathstr, 'function'));
@@ -53,24 +52,31 @@ clear tmp index;
 
 %% 设置环境路径和参数
 fprintf('===== 开始接收信号合成 =====\n\n');
+OriginEnvPackPath = fullfile(pathstr, 'data','OriginEnvPack');
+SignalPath        = fullfile(pathstr, 'data','processed');
+EnvClasses        = {'Shallow', 'Transition', 'Deep'};
 
-ENVall_folder      = fullfile(pathstr, 'data\OriginEnvPack');
-Signal_folder_path = fullfile(pathstr, 'data\processed');
-ENV_classes        = {'Shallow', 'Transition', 'Deep'};
-
-
-% 加载频率数据
+% 加载全部信号的频率分布数据
 fprintf('加载频率数据...\n');
-load(fullfile(Signal_folder_path, 'Analy_freq_all.mat'), 'Analy_freq_all');
+load(fullfile(SignalPath, 'Analy_freq_all.mat'), 'Analy_freq_all');
 
 % 加载所有信号的频率分量数据
-sig_mat_files = dir(fullfile(Signal_folder_path, '*.mat'));
+SigFilesList = dir(fullfile(SignalPath, '*.mat'));
 % 过滤掉 Analy_freq_all.mat
-sig_mat_files = sig_mat_files(~strcmp({sig_mat_files.name}, 'Analy_freq_all.mat'));
+SigFilesList = SigFilesList(~strcmp({SigFilesList.name}, 'Analy_freq_all.mat'));
+fprintf('找到 %d 个信号文件\n', length(SigFilesList));
+SigFilesNum = length(SigFilesList);
 
-fprintf('找到 %d 个信号文件\n', length(sig_mat_files));
-for n = 1:length(sig_mat_files)
-    sig_mat_struct(n) = load(fullfile(Signal_folder_path, sig_mat_files(n).name));
+if SigFilesNum > 0
+    % 预加载第一个文件以确定结构体字段并预分配
+    first_data = load(fullfile(SignalPath, SigFilesList(1).name));
+    SigFilesStruct = repmat(first_data, 1, SigFilesNum);
+    % 加载剩余文件
+    for n = 2:SigFilesNum
+        SigFilesStruct(n) = load(fullfile(SignalPath, SigFilesList(n).name));
+    end
+else
+    SigFilesStruct = [];
 end
 
 % 参数配置
@@ -85,160 +91,92 @@ fprintf('===== 开始批量合成接收信号 =====\n\n');
 
 TotalProcessed = 0;
 
-for i = 1:length(ENV_classes)
-    fprintf('--- 处理海域类型: %s ---\n', ENV_classes{i});
+for i = 1:length(EnvClasses)
+    fprintf('--- 处理海域类型: %s ---\n', EnvClasses{i});
     
-    ENV_class_path = fullfile(ENVall_folder, ENV_classes{i});
-    if ~exist(ENV_class_path, 'dir')
+    EnvClassPath = fullfile(OriginEnvPackPath, EnvClasses{i});
+    if ~exist(EnvClassPath, 'dir')
         fprintf('  警告: 文件夹不存在，跳过\n\n');
         continue;
     end
     
     % 获取所有站点文件夹
-    contents = dir(ENV_class_path);
-    ENV_single_foldernames = contents([contents.isdir] & ~ismember({contents.name}, {'.', '..'}));
+    contents = dir(EnvClassPath);
+    contents = contents([contents.isdir]);
+    EnvSiteNames = contents(~strncmp({contents.name}, '.', 1));
     clear contents;
-    fprintf('  站点数量: %d\n', length(ENV_single_foldernames));
+    fprintf('  站点数量: %d\n', length(EnvSiteNames));
     
     % 遍历每个站点
-    for j = 1:length(ENV_single_foldernames)
-        ENV_single_folder = fullfile(ENV_class_path, ENV_single_foldernames(j).name);
-        fprintf('  处理站点: %s\n', ENV_single_foldernames(j).name);
+    for j = 1:length(EnvSiteNames)
+        EnvSiteDir = fullfile(EnvClassPath, EnvSiteNames(j).name);
+        fprintf('  处理站点: %s\n', EnvSiteNames(j).name);
         
         % 获取所有距离文件夹
-        contents = dir(ENV_single_folder);
-        ENV_Rr_foldernames = contents([contents.isdir] & ~ismember({contents.name}, {'.', '..'}));
+        contents = dir(EnvSiteDir);
+        contents = contents([contents.isdir]); % 仅保留目录，减少后续处理量
+        EnvSiteRrNames = contents(~strncmp({contents.name}, '.', 1)); % 快速排除 . 和 .. 及隐藏文件夹
         clear contents;
         
         % 遍历每个距离配置
-        for k = 1:length(ENV_Rr_foldernames)
-            ENV_Rr_folder = fullfile(ENV_single_folder, ENV_Rr_foldernames(k).name);
+        for k = 1:length(EnvSiteRrNames)
+            EnvSiteRrDir = fullfile(EnvSiteDir, EnvSiteRrNames(k).name);
             
             % 检查到达结构文件是否存在
-            arr_file = fullfile(ENV_Rr_folder, 'ENV_ARR_less.mat');
+            arr_file = fullfile(EnvSiteRrDir, 'ENV_ARR_less.mat');
             if ~exist(arr_file, 'file')
                 fprintf('    警告: 未找到到达结构文件，跳过\n');
                 continue;
             end
-            
-            % 创建输出文件夹
-            NewSig_folder = fullfile(ENV_Rr_folder, 'NewSig');
-            if ~exist(NewSig_folder, 'dir')
-                mkdir(NewSig_folder);
-            end
-            
             % 加载到达结构
             load(arr_file, 'ARR');
-            
-            % 根据接收深度数量确定深度数组
-            if size(ARR, 2) == 3
-                ReceiveDepth = [10, 20, 30];  % Shallow
-            else
-                ReceiveDepth = [25, 50, 100, 300];  % Transition / Deep
+
+            % 创建输出文件夹
+            OutputSigDir = fullfile(EnvSiteRrDir, 'NewSig');
+            if ~exist(OutputSigDir, 'dir')
+                mkdir(OutputSigDir);
             end
             
+            ReceiveDepth = [ARR(1, :).rd];
+
             fprintf('    处理距离配置: %s (接收深度: %s)\n', ...
-                ENV_Rr_foldernames(k).name, mat2str(ReceiveDepth));
+                EnvSiteRrNames(k).name, mat2str(ReceiveDepth));
             
             % 遍历每个接收深度
             for m = 1:length(ReceiveDepth)
-                ARR_tmp = ARR(:, m);
+                ARRSingleRD = ARR(:, m);
                 
                 % 遍历每个信号文件
-                for n = 1:length(sig_mat_files)
-                    Analy_freq = sig_mat_struct(n).Analy_freq;
-                    Analyrecord = sig_mat_struct(n).Analyrecord;
-                    Ndelay = sig_mat_struct(n).Ndelay;
+                for n = 1:length(SigFilesList)
+                    [~, SigBaseName] = fileparts(SigFilesList(n).name);
+                    AnalyFreq   = SigFilesStruct(n).Analy_freq;
+                    AnalyRecord = SigFilesStruct(n).Analyrecord;
+                    Ndelay      = SigFilesStruct(n).Ndelay;
                     
                     % 生成输出文件名
-                    NewSig_name = fullfile(NewSig_folder, sprintf('%s_Rd_%d_new.mat', ...
-                        sig_mat_files(n).name(1:end-4), ReceiveDepth(m)));
+                    NewSigName = fullfile(OutputSigDir, sprintf('%s_Rd_%d_new.mat', ...
+                        SigBaseName, ReceiveDepth(m)));
                     
                     % 提取信号段存在的频率
-                    [~, idx] = ismember(Analy_freq, Analy_freq_all);
-                    Arr_tmp = ARR_tmp(idx, :);
-                    numfreq = length(Arr_tmp);
+                    [~, idx] = ismember(AnalyFreq, Analy_freq_all);
+                    % 此RD下该信号所包含频率的到达结构
+                    ArrRDSig = ARRSingleRD(idx, :);
                     
-                    % 计算最大和最小时延
-                    maxdelay = zeros(numfreq, 1);
-                    mindelay = zeros(numfreq, 1);
-                    for p = 1:numfreq
-                        if ~isempty(Arr_tmp(p).Delay)
-                            maxdelay(p) = max(Arr_tmp(p).Delay);
-                            mindelay(p) = min(Arr_tmp(p).Delay);
-                        end
-                    end
-                    
-                    MAXdelay = max(maxdelay);
-                    MINdelay = min(mindelay);
-                    Ndelay_d = Ndelay(2) - Ndelay(1);  % 分段信号长度
-                    Analyrecord_Num = length(Analyrecord);  % 分段信号总段数
-                    
-                    % 随机选择连续 N 段
-                    if Analyrecord_Num >= 10
-                        Nsel = 10;
-                    else
-                        Nsel = Analyrecord_Num;
-                    end
-                    maxStart = Analyrecord_Num - Nsel + 1;
-                    startSeg = randi(maxStart);
-                    selSegments = startSeg : (startSeg + Nsel - 1);
-                    
-                    % 初始化目标信号
-                    tgsig_lth = ceil((MAXdelay - MINdelay + Nsel + 0.01) * fs);  % 目标信号长度
-                    tgt = (0:tgsig_lth-1) / fs;  % 目标信号时间序列
-                    tgsig = zeros(size(tgt));  % 目标信号初始化
                     
                     % 合成信号
-                    for ii = 1:Nsel
-                        p = selSegments(ii);
-                        tar_freq = round(Analyrecord(p).freq, 4)';
-                        tar_amp = Analyrecord(p).Amp;
-                        tar_pha = Analyrecord(p).phase;
-                        [~, tar_f_loc] = ismember(tar_freq, Analy_freq);
-                        
-                        num_tar = length(tar_freq);
-                        Dsig = zeros(1, tgsig_lth);
-                        
-                        if tar_f_loc ~= 0
-                            for rn = 1:num_tar
-                                delay0 = Arr_tmp(tar_f_loc(rn)).Delay;
-                                amp0 = Arr_tmp(tar_f_loc(rn)).Amp';
-                                phase0 = Arr_tmp(tar_f_loc(rn)).phase;
-                                originAmp = Amp_source * tar_amp(rn);
-                                
-                                % 生成时域信号
-                                [y_time, M_length] = SigGenerateTD(tar_freq(rn), Ndelay_d, fs, ...
-                                    originAmp, tar_pha(rn), delay0, amp0, phase0);
-                                
-                                % 确定信号初始位置
-                                be = floor((min(delay0) - MINdelay + Ndelay(ii)) * fs) + 1;
-                                Dsig(be:be+M_length-1) = Dsig(be:be+M_length-1) + y_time;
-                            end
-                        end
-                        tgsig = tgsig + Dsig;
-                    end
-                    
-                    % 取实部
-                    tgsig = real(tgsig);
-                    
-                    % 剔除尾部零信号
-                    lastIdx = find(tgsig ~= 0, 1, 'last');
-                    if ~isempty(lastIdx)
-                        tgsig = tgsig(1:lastIdx);
-                        tgt = tgt(1:lastIdx);
-                    end
+                    [TargSig, TargT] = TargSigGenerator(AnalyRecord, AnalyFreq, ...
+                        ArrRDSig, Amp_source, fs, Ndelay);
                     
                     % 保存信号
-                    save(NewSig_name, 'tgsig', 'tgt');
+                    save(NewSigName, 'TargSig', 'TargT');
                     fprintf('      保存信号: %s (深度 %d m)\n', ...
-                        sig_mat_files(n).name(1:end-4), ReceiveDepth(m));
+                        SigBaseName, ReceiveDepth(m));
                 end
             end
             
             fprintf('    完成: 生成 %d 个深度 × %d 个信号 = %d 个接收信号\n', ...
-                length(ReceiveDepth), length(sig_mat_files), ...
-                length(ReceiveDepth) * length(sig_mat_files));
+                length(ReceiveDepth), length(SigFilesList), ...
+                length(ReceiveDepth) * length(SigFilesList));
             TotalProcessed = TotalProcessed + 1;
         end
     end
@@ -248,5 +186,5 @@ end
 fprintf('===== 接收信号合成完成 =====\n');
 fprintf('总计处理: %d 个环境文件夹\n', TotalProcessed);
 fprintf('每个文件夹生成: %d 个深度 × %d 个信号文件\n', ...
-    length(ReceiveDepth), length(sig_mat_files));
+    length(ReceiveDepth), length(SigFilesList));
 fprintf('\n===== 全部完成 =====\n');

@@ -11,7 +11,7 @@ function varargout = plotshd( varargin )
 % mbp
 
 global units jkpsflag
-
+units = 'km';
 % read
 
 %disp( 'PlotShd uses the first frequency, bearing, and source depth in the shade file; check OK' )

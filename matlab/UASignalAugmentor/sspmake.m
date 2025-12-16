@@ -16,17 +16,16 @@
 %% 初始化
 clear; close all; clc;
 tmp = matlab.desktop.editor.getActive;
-index = strfind(tmp.Filename, '\');
-pathstr = tmp.Filename(1:index(end)-1);
+pathstr = fileparts(tmp.Filename);
 cd(pathstr);
 addpath(pathstr);
 addpath(fullfile(pathstr, 'function'));
-clear pathstr tmp index;
+clear tmp index;
 
 %% 加载海洋环境数据
 fprintf('===== 加载海洋环境数据 =====\n');
 
-OceanDataPath = fullfile(pathstr, 'data\OceanData');
+OceanDataPath = fullfile(pathstr, 'data','OceanData');
 ETOPOName     = 'ETOPO2022.mat';
 WOAName       = 'woa23_%02d.mat';
 

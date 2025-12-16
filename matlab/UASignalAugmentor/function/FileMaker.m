@@ -52,9 +52,9 @@ lon = linspace(Config.Loc.coordS.lon, Config.Loc.coordE.lon, N);
 % 提取海底地形和声速剖面
 bathm.r = linspace(0, rmax, N) - Config.Source.SourceRange;  % 地形文件距离参数
 [bathm.d, ssp_raw, SSProf] = get_env(ETOPO, WOA, lon, lat, Config.Source.timeIdx);
-% if ~(Config.Cal.mesoscale.type == 'none')
+if ~strcmp(Config.Cal.mesoscale.type, 'none')
     SSProf = add_mesoscale(SSProf, rmax, Config.Cal.mesoscale.type, Config.Cal.mesoscale.params);
-% end
+end
 %% 处理声速剖面数据
 % 计算最大海深并裁剪声速剖面
 Zmax = ceil(max(bathm.d));  % 区间实际最大海深
@@ -102,12 +102,16 @@ Beam.Box.r = rmax + 1;    % 计算最大距离（需大于最大接收距离）
 
 %% 生成Bellhop输入文件
 % 生成海面反射系数文件 (*.trc)
-ReCoeTop(Config.Source.freqvec, ssp_top, Config.Cal.top_sea_state_level, ...
-    sprintf('%s', FileName));
+if length(Config.Cal.Bdry.Top.Opt) >= 2 && Config.Cal.Bdry.Top.Opt(2) == 'F'
+    ReCoeTop(Config.Source.freqvec, ssp_top, Config.Cal.top_sea_state_level, ...
+        sprintf('%s', FileName));
+end
 
 % 生成海底反射系数文件 (*.brc)
-RefCoeBw(Config.Cal.bottom_base_type, sprintf('%s', FileName), ...
-    Config.Source.freqvec, ssp_bot, Config.Cal.bottom_alpha_b);
+if Config.Cal.Bdry.Bot.Opt(1) == 'F'
+    RefCoeBw(Config.Cal.bottom_base_type, sprintf('%s', FileName), ...
+        Config.Source.freqvec, ssp_bot, Config.Cal.bottom_alpha_b);
+end
 
 % 生成环境文件 (*.env)
 write_env(FileName, model, titleEnv, Config.Source.freq, SSP, Bdry, Pos, ...

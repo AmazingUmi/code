@@ -18,16 +18,16 @@
 %% 初始化
 clear; close all; clc;
 tmp = matlab.desktop.editor.getActive;
-index = strfind(tmp.Filename, '\');
-pathstr = tmp.Filename(1:index(end)-1);
+pathstr = fileparts(tmp.Filename);
 cd(pathstr);
 addpath(pathstr);
-addpath([pathstr '\function']);
+addpath(fullfile(pathstr, 'function'));
 clear tmp index;
 
+
 %% 路径设置
-OriginEnvPackPath = fullfile(pathstr, 'data\OriginEnvPack');
-ConfigOutputPath  = fullfile(pathstr, 'data\OriginEnvPack');
+OriginEnvPackPath = fullfile(pathstr, 'data','OriginEnvPack');
+ConfigOutputPath  = fullfile(pathstr, 'data','OriginEnvPack');
 OutputName = 'Config';
 
 % 初始化配置结构体

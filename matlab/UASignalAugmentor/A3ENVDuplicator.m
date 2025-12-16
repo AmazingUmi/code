@@ -45,18 +45,18 @@
 %% 初始化
 clear; close all; clc;
 tmp = matlab.desktop.editor.getActive;
-index = strfind(tmp.Filename, '\');
-pathstr = tmp.Filename(1:index(end)-1);
+pathstr = fileparts(tmp.Filename);
 cd(pathstr);
 addpath(pathstr);
+addpath(fullfile(pathstr, 'function'));
 clear tmp index;
 
 %% 加载配置和频率数据
 fprintf('===== 开始环境文件频率扩展 =====\n\n');
 
 % 路径配置
-OriginEnvPackPath    = fullfile(pathstr, 'data\OriginEnvPack');  % 环境文件总文件夹
-Signal_path          = fullfile(pathstr,'data\processed');
+OriginEnvPackPath    = fullfile(pathstr, 'data', 'OriginEnvPack');  % 环境文件总文件夹
+Signal_path          = fullfile(pathstr, 'data', 'processed');
 
 % 加载配置文件
 ConfigName = 'ConfigDeep.mat';  % 'ConfigShallow.mat'/'ConfigTransition.mat'/'ConfigDeep.mat'
@@ -95,79 +95,25 @@ fprintf('  站点数量: %d\n', length(EnvFolderNames));
 for j = 1:length(EnvFolderNames)
     EnvFolderPath = fullfile(EnvClassPath, EnvFolderNames(j).name);
     fprintf('  处理站点: %s\n', EnvFolderNames(j).name);
-    
+
     % 获取所有距离文件夹 (Rr1, Rr2, ...)
     contents = dir(EnvFolderPath);
     EnvRrNames = contents([contents.isdir] & ~ismember({contents.name}, {'.', '..'}));
     clear contents;
-    
+
     % 遍历每个距离配置
     for k = 1:length(EnvRrNames)
         EnvRrFolder = fullfile(EnvFolderPath, EnvRrNames(k).name, 'EnvTemplate');
-        
+
         % 确保环境文件夹存在
         if ~exist(EnvRrFolder, 'dir')
             mkdir(EnvRrFolder);
-            fprintf('    创建文件夹: %s\n', EnvRrFolder);
+            fprintf('    需要创建文件夹: %s\n', EnvRrFolder);
         end
-        
-        % 切换到环境文件夹
-        cd(EnvRrFolder);
-        
-        % 查找基础环境文件
-        fileList = dir('ENV*.env');
-        if isempty(fileList)
-            fprintf('    警告: 未找到ENV文件，跳过\n');
-            continue;
-        end
-        
-        % 获取基础文件名（去除扩展名）
-        EnvFileName = fileList(1).name;  % 例如: ENV_1_Rr1Km.env
-        EnvBaseName = EnvFileName(1:end-4);  % 例如: ENV_1_Rr1Km
-        
-        fprintf('    处理文件: %s (生成 %d 个频率副本)\n', ...
-            EnvFileName, length(Analy_freq_all));
-        
-        % 读取基础环境文件内容
-        FileContents = fileread(EnvFileName);
-        BaseLines = strsplit(FileContents, '\n');
-        [ssp_top, ssp_bot] = get_boundary_speed(BaseLines);
-        
-        % 并行生成各频率环境文件
-        NewFileName = cell(1, length(Analy_freq_all));
-        
-        for m = 1:length(Analy_freq_all)
-            % 生成新文件名
-            NewFileName{m} = sprintf('test_%d', m);
-            
-            % 修改频率行（通常是第2行）
-            Lines = BaseLines;
-            NewLine = sprintf('  %.2f  \t \t \t ! Frequency (Hz) ', Analy_freq_all(m));
-            Lines{2} = NewLine;
-            NewContents = strjoin(Lines, '\n');
-            
-            % 写入新的环境文件
-            fid = fopen([NewFileName{m}, '.env'], 'w');
-            fprintf(fid, '%s', NewContents);
-            fclose(fid);
-            
-            % 复制辅助文件
-            copyfile([EnvBaseName, '.bty'], [NewFileName{m}, '.bty']);
-            copyfile([EnvBaseName, '.ssp'], [NewFileName{m}, '.ssp']);
-            % 重新计算反射系数
-            ReCoeTop(Analy_freq_all(m), ssp_top, Config.Cal.top_sea_state_level, ...
-                NewFileName{m});
-            RefCoeBw(Config.Cal.bottom_base_type, sprintf('%s', NewFileName{m}), ...
-                Analy_freq_all(m), ssp_bot, Config.Cal.bottom_alpha_b);
-        end
-        
-        % 生成环境文件列表
-        fileID = fopen('env_files_list.txt', 'w');
-        for m = 1:length(Analy_freq_all)
-            fprintf(fileID, '%s\n', NewFileName{m});
-        end
-        fclose(fileID);
-        
+
+        EnvName = [];
+        FreqDuplicator(EnvRrFolder, EnvName, EnvRrFolder, Analy_freq_all, ...
+            Config.Cal.top_sea_state_level, Config.Cal.bottom_base_type, Config.Cal.bottom_alpha_b)
         fprintf('    完成: 生成 %d 组文件\n', length(Analy_freq_all));
         TotalFoldersNum = TotalFoldersNum + 1;
     end
@@ -180,22 +126,32 @@ fprintf('总文件数: %d 组\n\n', TotalFoldersNum * length(Analy_freq_all));
 %% 打包压缩文件
 fprintf('===== 开始打包环境文件 =====\n');
 
-cd(OriginEnvPackPath);
-cd ..;
+% 获取打包目标路径信息
+[ParentDir, PackFolderName] = fileparts(OriginEnvPackPath);
+ZipName = ['ENVall_files_', datestr(now, 'yyyymmdd')];
+ZipFileName = [ZipName, '.tar.gz'];
 
-% 生成压缩包文件名（包含日期）
-zipname = ['ENVall_files_', datestr(now, 'yyyymmdd')];
-fprintf('压缩包名称: %s.tar.gz\n', zipname);
+% 切换到父目录进行打包，避免包含绝对路径
+cd(ParentDir);
 
-% 使用 tar + gzip 压缩
+fprintf('目标文件夹: %s\n', PackFolderName);
+fprintf('压缩包名称: %s\n', ZipFileName);
 fprintf('正在压缩文件（可能需要较长时间）...\n');
-tic;
-systemline = sprintf('tar -czf %s.tar.gz %s', zipname, 'Enhanced_shipsEar0405');
-system(systemline);
-elapsed_time = toc;
 
-fprintf('压缩完成! 耗时: %.2f 秒\n', elapsed_time);
-fprintf('压缩文件路径: %s\n', fullfile(pwd, [zipname, '.tar.gz']));
+tic;
+% 使用系统 tar 命令 (macOS/Linux)
+Cmd = sprintf('tar -czf "%s" "%s"', ZipFileName, PackFolderName);
+[Status, CmdOut] = system(Cmd);
+ElapsedTime = toc;
+
+if Status == 0
+    fprintf('压缩完成! 耗时: %.2f 秒\n', ElapsedTime);
+    fprintf('压缩文件路径: %s\n', fullfile(ParentDir, ZipFileName));
+else
+    warning('压缩失败: %s', CmdOut);
+end
+
+cd(pathstr);
 fprintf('\n===== 全部处理完成 =====\n');
 
 % 注释说明

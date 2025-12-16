@@ -31,8 +31,7 @@
 %% 初始化
 clear; close all; clc;
 tmp = matlab.desktop.editor.getActive;
-index = strfind(tmp.Filename, '\');
-pathstr = tmp.Filename(1:index(end)-1);
+pathstr = fileparts(tmp.Filename);
 cd(pathstr);
 addpath(pathstr);
 addpath(fullfile(pathstr, 'function'));
@@ -43,8 +42,8 @@ fprintf('===== 开始音频信号频率提取 =====\n\n');
 
 % 路径配置
 subfolders   = {'Class A', 'Class B', 'Class C', 'Class D', 'Class E'};
-input_path   = fullfile(pathstr,'data\raw');
-output_path  = fullfile(pathstr,'data\processed');
+input_path   = fullfile(pathstr,'data','raw');
+output_path  = fullfile(pathstr,'data','processed');
 FreqAllName = 'Analy_freq_all.mat';
 
 % 检查目标文件夹是否存在，如果不存在则创建
@@ -56,7 +55,7 @@ end
 % 信号处理参数
 threshold   = 0.05;       % 幅值阈值（降低存储压力）
 cut_Tlength = 1;          % 信号分段时间长度（秒）
-FreqRange   = [10, 5000]; % 频率范围（Hz）
+FreqRange   = [10, 200]; % 频率范围（Hz）
 
 fprintf('配置信息:\n');
 fprintf('  输入路径: %s\n', input_path);
