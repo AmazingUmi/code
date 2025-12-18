@@ -137,42 +137,11 @@ for i = 1:length(EnvClasses)
                 mkdir(OutputSigDir);
             end
             
-            ReceiveDepth = [ARR(1, :).rd];
-
-            fprintf('    处理距离配置: %s (接收深度: %s)\n', ...
-                EnvSiteRrNames(k).name, mat2str(ReceiveDepth));
+            % 调用信号合成生成器
+            SignalPatchGenerator(ARR, SigFilesList, ...
+                SigFilesStruct, OutputSigDir, Analy_freq_all, Amp_source, fs);
             
-            % 遍历每个接收深度
-            for m = 1:length(ReceiveDepth)
-                ARRSingleRD = ARR(:, m);
-                
-                % 遍历每个信号文件
-                for n = 1:length(SigFilesList)
-                    [~, SigBaseName] = fileparts(SigFilesList(n).name);
-                    AnalyFreq   = SigFilesStruct(n).Analy_freq;
-                    AnalyRecord = SigFilesStruct(n).Analyrecord;
-                    Ndelay      = SigFilesStruct(n).Ndelay;
-                    
-                    % 生成输出文件名
-                    NewSigName = fullfile(OutputSigDir, sprintf('%s_Rd_%d_new.mat', ...
-                        SigBaseName, ReceiveDepth(m)));
-                    
-                    % 提取信号段存在的频率
-                    [~, idx] = ismember(AnalyFreq, Analy_freq_all);
-                    % 此RD下该信号所包含频率的到达结构
-                    ArrRDSig = ARRSingleRD(idx, :);
-                    
-                    
-                    % 合成信号
-                    [TargSig, TargT] = TargSigGenerator(AnalyRecord, AnalyFreq, ...
-                        ArrRDSig, Amp_source, fs, Ndelay);
-                    
-                    % 保存信号
-                    save(NewSigName, 'TargSig', 'TargT');
-                    fprintf('      保存信号: %s (深度 %d m)\n', ...
-                        SigBaseName, ReceiveDepth(m));
-                end
-            end
+            ReceiveDepth = [ARR(1, :).rd];
             
             fprintf('    完成: 生成 %d 个深度 × %d 个信号 = %d 个接收信号\n', ...
                 length(ReceiveDepth), length(SigFilesList), ...

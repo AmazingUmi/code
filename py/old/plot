@@ -1,0 +1,65 @@
+import matplotlib.pyplot as plt
+import seaborn as sns
+import pandas as pd
+import numpy as np
+
+# === 1. Mac 系统专用字体设置 ===
+# Mac 上最稳健的中文字体通常是 'Arial Unicode MS' 或 'Heiti TC'
+# 这里我们设置字体列表，如果第一个找不到会自动找第二个
+plt.rcParams['font.sans-serif'] = ['Songti SC', 'Arial Unicode MS', 'Heiti TC']
+
+# 解决负号显示为方块的问题
+plt.rcParams['axes.unicode_minus'] = False 
+
+# === 2. 准备数据 ===
+data_values = [
+    [0.92, 0.90, 0.86, 0.91, 0.88, 0.88, 0.89],
+    [0.92, 0.93, 0.92, 0.92, 0.92, 0.93, 0.92],
+    [0.86, 0.92, 0.94, 0.89, 0.90, 0.93, 0.91],
+    [0.95, 0.96, 0.94, 0.96, 0.94, 0.95, 0.95],
+    [0.94, 0.95, 0.94, 0.95, 0.94, 0.95, 0.94],
+    [0.94, 0.96, 0.95, 0.95, 0.95, 0.95, 0.95],
+    [0.98, 0.99, 0.98, 0.98, 0.98, 0.98, 0.98]
+]
+
+row_labels = ['浅海模型', '过渡海模型', '深水模型', '浅海-过渡混合模型', '浅海-深水混合模型', '过渡-深水混合模型', '全环境混合模型']
+col_labels = ['浅海环境', '过渡海环境', '深水环境', '浅海-过渡混合环境', '浅海-深水混合环境', '过渡-深水混合环境', '全环境混合环境']
+df = pd.DataFrame(data_values, index=row_labels, columns=col_labels)
+
+# === 3. 设置绘图风格 ===
+# 注意：先设置 theme，再应用字体，防止被 seaborn 默认样式覆盖
+sns.set_theme(style="white", font_scale=1.2)
+# 再次强制指定字体，确保万无一失
+sns.set(font='Songti SC', style="white", font_scale=1.2)
+
+fig, ax = plt.subplots(figsize=(10, 8))
+
+# === 4. 绘制热力图 ===
+cmap = sns.light_palette("green", as_cmap=True)
+
+sns.heatmap(df,
+            ax=ax,
+            annot=True,
+            fmt=".2f",
+            cmap=cmap,
+            vmin=0.80,
+            vmax=1.00,
+            square=True,
+            cbar_kws={"shrink": .8, "aspect": 20},
+            linewidths=0) # 取消内部白线
+
+# === 5. 增加外框黑线 ===
+for spine in ax.spines.values():
+    spine.set_visible(True)
+    spine.set_color('black')
+    spine.set_linewidth(2)
+
+# === 6. 设置中文标签和标题 ===
+ax.set_ylabel("已完成训练模型", fontsize=18, labelpad=10, fontweight='bold')
+ax.set_xlabel("测试环境", fontsize=18, labelpad=10, fontweight='bold')
+
+plt.xticks(rotation=45, ha='right')
+plt.yticks(rotation=0)
+
+plt.tight_layout()
+plt.show()

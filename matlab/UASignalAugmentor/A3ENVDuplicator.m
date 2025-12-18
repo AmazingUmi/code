@@ -56,7 +56,7 @@ fprintf('===== 开始环境文件频率扩展 =====\n\n');
 
 % 路径配置
 OriginEnvPackPath    = fullfile(pathstr, 'data', 'OriginEnvPack');  % 环境文件总文件夹
-Signal_path          = fullfile(pathstr, 'data', 'processed');
+SigFilePath          = fullfile(pathstr, 'data', 'processed');
 
 % 加载配置文件
 ConfigName = 'ConfigDeep.mat';  % 'ConfigShallow.mat'/'ConfigTransition.mat'/'ConfigDeep.mat'
@@ -66,7 +66,7 @@ fprintf('海域类型: %s\n', Config.Site_loc.zone);
 
 % 加载信号频率数据
 fprintf('加载信号频率数据...\n');
-load(fullfile(Signal_path, 'Analy_freq_all.mat'), 'Analy_freq_all');
+load(fullfile(SigFilePath, 'Analy_freq_all.mat'), 'Analy_freq_all');
 fprintf('频率数量: %d\n', length(Analy_freq_all));
 fprintf('频率范围: %.1f - %.1f Hz\n\n', min(Analy_freq_all), max(Analy_freq_all));
 

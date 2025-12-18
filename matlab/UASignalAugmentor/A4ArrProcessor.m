@@ -104,7 +104,7 @@ for i = 1:length(EnvClasses)
             
             if ~exist(EnvSiteRrDir, 'dir')
                 fprintf('    警告: 文件夹不存在 %s，跳过\n', EnvSiteRrDir);
-                continue;
+                % continue;
             end
             
             % 读取环境文件列表

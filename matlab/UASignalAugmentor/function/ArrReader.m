@@ -1,4 +1,4 @@
-function ArrReader(ArrFileName, EnvSiteRrDir, MAX_FREQ_LIMIT, AMP_THRESHOLD_RATIO)
+function ArrReader(ArrFileName, EnvSiteRrDir, MAX_FREQ_LIMIT, AMP_THRESHOLD_RATIO, OutputMatName, OutputDir)
 % ARRREADER 读取Bellhop计算的到达结构文件(.arr)，提取并保存声线信息
 %
 % 输入:
@@ -6,6 +6,8 @@ function ArrReader(ArrFileName, EnvSiteRrDir, MAX_FREQ_LIMIT, AMP_THRESHOLD_RATI
 %   EnvSiteRrDir: .arr文件所在目录，也是.mat文件保存目录
 %   MAX_FREQ_LIMIT: 最大处理频率
 %   AMP_THRESHOLD_RATIO: 幅值门限比例
+%   OutputMatName: (可选) 输出MAT文件名，默认为 'ENV_ARR_less.mat'
+%   OutputDir: (可选) 输出目录，默认为 EnvSiteRrDir 的上一级目录
 
     num_files = length(ArrFileName);
     
@@ -96,10 +98,19 @@ function ArrReader(ArrFileName, EnvSiteRrDir, MAX_FREQ_LIMIT, AMP_THRESHOLD_RATI
         % 将一行结果赋值回主数组 (Parfor Slicing)
         ARR(m, :) = row_structs;
     end
-    % 保存到上一级目录
-    OutputDir = fileparts(EnvSiteRrDir);
-    % 保存为.mat格式
-    OutputMatName = fullfile(OutputDir, 'ENV_ARR_less.mat');
-    save(OutputMatName, 'ARR');
-    fprintf('    保存MAT文件: ENV_ARR_less.mat\n');
+    
+    % 处理输出路径
+    % 确定输出目录
+    if nargin < 6 || isempty(OutputDir)
+        OutputDir = fileparts(EnvSiteRrDir);
+    end
+    
+    % 确定输出文件名
+    if nargin < 5 || isempty(OutputMatName)
+        OutputMatName = 'ENV_ARR_less.mat';
+    end
+
+    SavePath = fullfile(OutputDir, OutputMatName);
+    save(SavePath, 'ARR');
+    fprintf('    保存MAT文件: %s\n', SavePath);
 end
