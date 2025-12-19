@@ -14,10 +14,12 @@ function SignalPatchGenerator(ARR, SigFilesList, SigFilesStruct, OutputSigDir, A
     ReceiveDepth = [ARR(1, :).rd];
     % 遍历每个接收深度
     for m = 1:length(ReceiveDepth)
+        % m = 1:length(ReceiveDepth)
         ARRSingleRD = ARR(:, m);
         
         % 遍历每个信号文件
         for n = 1:length(SigFilesList)
+            % n = 1:length(SigFilesList)
             [~, SigBaseName] = fileparts(SigFilesList(n).name);
             AnalyFreq   = SigFilesStruct(n).Analy_freq;
             AnalyRecord = SigFilesStruct(n).Analyrecord;

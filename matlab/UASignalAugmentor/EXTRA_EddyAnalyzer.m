@@ -7,7 +7,7 @@ addpath(fullfile(pathstr, 'function'));
 clear tmp index;
 
 %% 创建输出目录
-OutputDir = '/Users/luyiyang/Database/testBin/EddyAnalyzer_output';
+OutputDir = 'E:\database\EddyAnalyzer_output';
 if ~exist(OutputDir, 'dir')
     mkdir(OutputDir);
 end

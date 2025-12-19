@@ -71,7 +71,7 @@ function [TargSig, TargT] = TargSigGenerator(AnalyRecord, AnalyFreq, ...
         [~, tar_f_loc] = ismember(OrgFreq, AnalyFreq);
         
         % 预计算当前段的时间偏移基准
-        time_offset_base = (Ndelay(ii) - MINdelay) * fs + 1;
+        time_offset_base = (Ndelay(ii) - MINdelay) * fs;
         
         if any(tar_f_loc) % 只要有匹配的频率就处理
             % 仅处理匹配成功的频率
@@ -82,6 +82,12 @@ function [TargSig, TargT] = TargSigGenerator(AnalyRecord, AnalyFreq, ...
 
                 freq0  = OrgFreq(rn);
                 delay0 = ArrRDSig(loc).Delay;
+                
+                % 如果该频率没有对应的时延数据（即没有声线到达），则跳过
+                if isempty(delay0)
+                    continue;
+                end
+
                 amp0   = ArrRDSig(loc).Amp';
                 phase0 = ArrRDSig(loc).phase;
                 originAmp = Amp_source * OrgAmp(rn);
@@ -91,10 +97,10 @@ function [TargSig, TargT] = TargSigGenerator(AnalyRecord, AnalyFreq, ...
                     originAmp, OrgPha(rn), delay0, amp0, phase0);
                 
                 % 确定信号初始位置
-                PointStart = floor(min_delay_lookup(loc) * fs + time_offset_base);
+                PointStart = floor(min_delay_lookup(loc) * fs + time_offset_base) + 1;
+                PointStart = max(1, PointStart); % 修正可能的浮点误差导致的 0 索引
                 
                 % 边界保护与叠加信号
-                % 优化：直接计算实际可用的长度，利用 MATLAB 空数组特性省去 if 判断
                 len = min(M_length, TargSigLength - PointStart + 1);
                 
                 % 直接叠加到 TargSig，省去中间变量
