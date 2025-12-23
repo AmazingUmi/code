@@ -103,7 +103,29 @@ for m = 1:length(FreqVector)
         warning('无法定位频率行，跳过文件生成: %s', NewEnvPath);
         continue;
     end
+    % 找到底部参数行
+    FreqLineIdx2 = find(~cellfun(@isempty, regexp(Lines, 'Bottom Option')));
     
+    % 如果包含 'A'，则进行修改
+    if ~isempty(FreqLineIdx2) && contains(Lines{FreqLineIdx2(1)}, 'A')
+        TargetLineIdx = FreqLineIdx2(1) + 1;
+        if TargetLineIdx <= length(Lines)
+            % 获取该行数据以计算 alpha
+            LineVals = sscanf(Lines{TargetLineIdx}, '%f');
+            if length(LineVals) >= 2
+                % 根据公式计算 alpha
+                val2 = LineVals(2); % 该行第二个数
+                lamda = val2 / FreqVector(m);
+                amp_val = (FreqVector(m)/1000)^1.71;
+                alpha = 0.39 * amp_val * lamda;
+                
+                % 将该行的第五个数修改为计算出的 alpha
+                Lines{TargetLineIdx} = regexprep(Lines{TargetLineIdx}, ...
+                    '^(\s*(?:\S+\s+){4})(\S+)', sprintf('$1%.6f', alpha));
+            end
+        end
+    end
+
     NewContents = strjoin(Lines, '\n'); % 使用 \n 连接，MATLAB 会自动处理写文件时的换行
     
     % 3. 写入新的环境文件

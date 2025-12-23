@@ -1,10 +1,6 @@
-acoustic-matlab
-  sspenv改写
+这里是Umi的代码库
 
-machinelearning-python
-
-application-c++
-
+2025 12.19 修改了索引机制TargSigGenerator，以及对parallel做了路径归类
 2025 12.18 完成了‘带涡程序（测试版）’的构建
 2025 12.16 UASA (UASignalAugmentor) 主程序整理完毕
 2025 12.09 Paper项目重构

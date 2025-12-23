@@ -47,7 +47,7 @@ function SSP = add_mesoscale(SSP, rmax, phenomenon_type, params)
 %
 %   % 添加内波
 %   iw_params.z0 = 1000;   % 基准深度1000m
-%   iw_params.L = 40;      % 特征长度40km
+%   iw_params.L  = 40;     % 特征长度40km
 %   iw_params.rc = 100;    % 波峰中心100km
 %   iw_params.DC = 500;    % 内波强度500m
 %   ssp_new = add_mesoscale(SSP, 200, 'internal_wave', iw_params);
