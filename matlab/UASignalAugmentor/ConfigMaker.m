@@ -65,6 +65,7 @@ elseif strcmp(ZoneName, 'Deep')
     Site_loc.ReceiveRange = [5, 30, 60];          % 接收距离 (km)
     Site_loc.ReceiveDepth = [25, 50, 100, 300];   % 接收深度 (m)
 end
+
 %% 声源配置 (Source)
 % 定义声源位置、频率和时间参数
 
@@ -123,6 +124,7 @@ Cal.Beam.Type    = 'CS';        % 波束类型 (CS: 圆锥扇形)
 %% 保存配置文件
 fprintf('正在保存配置文件..\n');
 OutputName = [OutputName, ZoneName, '.mat'];
+
 save(fullfile(ConfigOutputPath, OutputName), 'Site_loc', 'Cal', 'Source');
 fprintf('配置文件已保存: %s\n', fullfile(ConfigOutputPath, OutputName));
 fprintf('包含变量: Site_loc, Source, Cal\n');

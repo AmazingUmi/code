@@ -12,6 +12,17 @@ function SignalPatchGenerator(ARR, SigFilesList, SigFilesStruct, OutputSigDir, A
 %   fs             : 采样率
 
     ReceiveDepth = [ARR(1, :).rd];
+
+    % GPU settings (avoid forcing GPU when unavailable; allow controlled memory release)
+    useGPU = false;
+    try
+        useGPU = (gpuDeviceCount > 0);
+    catch
+        useGPU = false;
+    end
+    BatchSize = 64;
+    resetEveryN = 0; % set to e.g. 50 to periodically reset GPU context if needed
+    sigCounter = 0;
     % 遍历每个接收深度
     for m = 1:length(ReceiveDepth)
         % m = 1:length(ReceiveDepth)
@@ -37,12 +48,29 @@ function SignalPatchGenerator(ARR, SigFilesList, SigFilesStruct, OutputSigDir, A
             
             % 合成信号
             [TargSig, TargT] = TargSigGenerator(AnalyRecord, AnalyFreq, ...
-                ArrRDSig, Amp_source, fs, Ndelay);
+                ArrRDSig, Amp_source, fs, Ndelay, [], useGPU, BatchSize);
             
             % 保存信号
             save(NewSigName, 'TargSig', 'TargT');
             fprintf('      保存信号: %s (深度 %d m)\n', ...
                 SigBaseName, ReceiveDepth(m));
+
+            % Help GPU memory return to the pool between iterations
+            if useGPU
+                sigCounter = sigCounter + 1;
+                try
+                    wait(gpuDevice);
+                    if resetEveryN > 0 && mod(sigCounter, resetEveryN) == 0
+                        reset(gpuDevice);
+                    end
+                catch
+                    % ignore GPU reset issues; continue on CPU next calls if needed
+                end
+            end
+
+            % Release large locals promptly (especially when looping many signals)
+            TargSig = [];
+            TargT = [];
         end
     end
 end
