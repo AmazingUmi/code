@@ -1,4 +1,4 @@
-function result_R = RefCoeBW(base_type, envfil, freqvec, ssp_end, alpha_b)
+function result_R = RefCoeBW2(base_type, envfil, freqvec, ssp_end, alpha_b)
 % 此函数的详细说明。
 %  REFCOE 根据海底参数计算宽带反射系数，为什么要计算宽带而不是窄带呢？原因有二
 % 1. 现实中的信号大部分都是宽带的；
@@ -31,19 +31,21 @@ for ifreq = 1: length(freqvec)
             speed = [ssp_end 1568.69 1664.50 1591.08 1569.42 1587 1562.01];
             layer_depth = [0 0.467 0.967 1.462 1.958 2.463 3.268];
             rho_D = [1 1.52 1.72 1.63 1.58 1.60 1.57];
-            alpha_p = [0 alpha_b * zeors(1, length(rho_D)-1)];
+            alpha_p = [0 alpha_b * zeros(1, length(rho_D)-1)];
         case 'SCS-4'
             speed = [ssp_end 1609.87 1591.64 1589.51 1552.50];
             layer_depth = [0 0.468 0.962 1.465 2.158];
             rho_D = [1 1.69 1.64 1.61 1.51];
-            alpha_p = [0 alpha_b * zeors(1, length(rho_D)-1)];
+            alpha_p = [0 alpha_b * zeros(1, length(rho_D)-1)];
     end
 
     speed = speed ./ (1 + 1j*alpha_p ./ (speed /f) * log(10) / (40 * pi)); % 求复声速
 
     angle_graze = 0:90;
-    angle_graze_end = (acosd(speed(end)/speed(1)*cosd(angle_graze)));
-    angle_graze_end_1 = (acosd(speed(end-1)/speed(1)*cosd(angle_graze)));
+    angle_calc = angle_graze;
+    angle_calc(1) = 1e-6;
+    angle_graze_end = (acosd(speed(end)/speed(1)*cosd(angle_calc)));
+    angle_graze_end_1 = (acosd(speed(end-1)/speed(1)*cosd(angle_calc)));
     Z_end = speed(end)*rho_D(end)./sind(angle_graze_end);
     Z_end_1 = speed(end-1)*rho_D(end-1)./sind(angle_graze_end_1);
     angle_graze_temp = angle_graze_end_1;
@@ -51,7 +53,7 @@ for ifreq = 1: length(freqvec)
     R_temp = (Z_end-Z_end_1)./(Z_end+Z_end_1);
     % 多层反射求解
     for ii = 2:length(speed)-1
-        angle_graze_up = (acosd(speed(end-ii)/speed(1)*cosd(angle_graze)));
+        angle_graze_up = (acosd(speed(end-ii)/speed(1)*cosd(angle_calc)));
         Z_up = speed(end-ii)*rho_D(end-ii)./sind(angle_graze_up);
         R_up = (Z_temp-Z_up)./(Z_temp+Z_up);
         phi = 2*pi*f/speed(end-ii+1)*(layer_depth(end-ii+1)-layer_depth(end-ii))...
@@ -62,8 +64,8 @@ for ifreq = 1: length(freqvec)
     end
     % plot(angle_graze,-20*log10(abs(R_temp)))
     % hold on
-    angle_graze_2 = (acosd(speed(2)/speed(1)*cosd(angle_graze)));
-    Z_1 = speed(1)*rho_D(1)./sind(angle_graze);
+    angle_graze_2 = (acosd(speed(2)/speed(1)*cosd(angle_calc)));
+    Z_1 = speed(1)*rho_D(1)./sind(angle_calc);
     Z_2 = speed(2)*rho_D(2)./sind(angle_graze_2);
     R_simple = (Z_2-Z_1)./(Z_2+Z_1);
     % plot(angle_graze,-20*log10(abs(R_simple)))

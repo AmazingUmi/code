@@ -1,4 +1,4 @@
-function plotssp2D( FileRoot )
+function plotssp2d( FileRoot )
 % plotssp.m
 % Plots the sound speed profile
 % Accesses Fileroot.env and FileRoot.env
@@ -80,6 +80,5 @@ for iplot = 1 : NPlots
    end
 
 end
-
 
 
