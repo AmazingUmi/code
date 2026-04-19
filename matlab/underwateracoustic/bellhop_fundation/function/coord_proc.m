@@ -7,20 +7,13 @@ function [coordS, coordE, R, azi] = coord_proc(coordS, coordE, R, azi)
 
 % 输入起点和终点坐标，计算距离和方位
 if ~isempty(coordE)
-    x = (coordE.lon - coordS.lon) * (111 * cos(coordS.lat/180*pi));
+    x = (coordE.lon - coordS.lon) * (111 * cosd(coordS.lat));
     y = (coordE.lat - coordS.lat) * 111;
-    R = sqrt(x*x + y*y);
-    if y > 0
-        azi = atan(x / y);
-    elseif y == 0
-        azi = sign(x) * pi / 2;
-    else
-        azi = atan(x / y) + pi;
-    end
+    R = hypot(x, y);
+    azi = mod(atan2d(x, y), 360);
 
 % 输入起点、距离和方位，计算终点
 elseif ~isempty(R) && ~isempty(azi)
-    azi = azi / 180 *pi;
-    coordE.lon = coordS.lon + R * sin(azi) / (111 * cos(coordS.lat/180*pi));
-    coordE.lat = coordS.lat + R * cos(azi) / 111;
+    coordE.lon = coordS.lon + R * sind(azi) / (111 * cosd(coordS.lat));
+    coordE.lat = coordS.lat + R * cosd(azi) / 111;
 end
