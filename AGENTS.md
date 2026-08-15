@@ -40,9 +40,12 @@ Config tracking status (2026-08 audit): `data/OriginEnvPack/ConfigDeep.mat` **is
 
 ## Key docs
 
+- `matlab/UASignalAugmentor/README.md` — UASA entry point & run order (start here for the MATLAB pipeline).
 - Root `README.md` — repo navigation and status; `readme.txt` — original historical log (kept as-is).
 - `matlab/UASignalAugmentor/doc/项目说明文档.md` — full pipeline + data layout (best single reference).
 - `matlab/UASignalAugmentor/doc/接口文档.md` — function interfaces.
+- `matlab/UASignalAugmentor/doc/BEHAVIOR_BASELINE.md` + `baseline/` — behavioral baseline & regression harness (run after any MATLAB change).
+- `matlab/UASignalAugmentor/doc/FUNCTION_MAP.md`, `doc/FUNCTION_ARCHITECTURE.md`, `doc/CONFIGURATION_MAP.md` — function classification, dependency audit, parameter map.
 - `py/UASignalAugmentor/docs/PROJECT_STATUS.md`, `docs/CONFIG_DESIGN.md`, `modules/COMPLETION_SUMMARY.md` — port status snapshots (historical/stale in parts; verify against code).
 
 ## Modernization rules
