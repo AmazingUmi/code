@@ -1,3 +1,12 @@
+% CONVERT_MUNK_SSP Munk声速剖面数据转换（Eddy 辅助数据预处理）
+% [统一入口说明]
+% Purpose:      data/Eddy/MunkSSP.txt → data/Eddy/MunkSSP.mat（pchip 插值加密后保存）
+% Inputs:       data/Eddy/MunkSSP.txt（相对当前工作目录解析）
+% Outputs:      data/Eddy/MunkSSP.mat（变量 munkSSP: [Depth, Speed]）
+% Dependencies: 无 function/ 依赖
+% Pipeline:     Eddy 变体前置数据准备（供 EddyComparison / EXTRA_EddyAnalyzer 使用）
+% 运行方式:     ⚠ 路径为 cwd 相对路径——需先将工作目录切到 UASignalAugmentor 根再运行
+%
 % Script to read MunkSSP.txt and convert to a two-column variable
 clc;close all;clear;
 % Define the relative path to the file
