@@ -2,6 +2,15 @@
 % A1WAVTRANSFORMER 音频信号频率提取工具
 %   提取音频文件的频率成分，为后续环境文件生成提供频率参数
 %
+% [统一入口说明]
+% Purpose:      wav 分段 FFT 频率提取 + 全局阈值筛选
+% Inputs:       data/raw/Class {A..E}/*.wav
+% Outputs:      data/processed/{Class}_{name}.mat (fs/Ndelay/Analyrecord/Analy_freq)
+%               data/processed/Analy_freq_all.mat (全局频率汇总)
+% Dependencies: function/wavfreq.m, function/wavfilter.m
+% Pipeline:     步骤 1/6（ConfigMaker → A1 → A2 → A3 → CallBell → A4 → A5）
+% 运行方式:     必须在 MATLAB Desktop 中将本文件作为活动文件运行（active-editor 自定位）
+%
 % 工作流程说明:
 %   本脚本是信号增强处理链的第1步，配合A2和A3脚本使用：
 %   A1_WavTransformer  -> 提取音频信号的频率成分（本脚本）

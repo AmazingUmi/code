@@ -2,6 +2,14 @@
 % A4ARRPROCESSOR 声场到达结构处理工具
 %   读取Bellhop计算的到达结构文件(.arr)，提取并保存声线信息
 %
+% [统一入口说明]
+% Purpose:      解析 CallBell 产出的 .arr，排序+幅值门限过滤 → 压缩到达结构
+% Inputs:       EnvTemplate/env_files_list.txt + 同目录 test_*.arr（CallBell 产出）
+% Outputs:      Rrn/ENV_ARR_less.mat — ARR[频率×深度]{Amp,Delay,phase,freq,rd}
+% Dependencies: function/ArrReader.m（内部调用 read_arrivals_asc）
+% Pipeline:     步骤 4/6（ConfigMaker → A1 → A2 → A3 → CallBell → A4 → A5）
+% 运行方式:     必须在 MATLAB Desktop 中将本文件作为活动文件运行（active-editor 自定位）
+%
 % 工作流程说明:
 %   本脚本是信号增强处理链的第4步，配合A1、A2、A3脚本使用：
 %   A1_WavTransformer  -> 提取音频信号的频率成分

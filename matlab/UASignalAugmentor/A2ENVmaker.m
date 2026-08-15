@@ -2,6 +2,15 @@
 % A2ENVMAKER 批量生成Bellhop环境文件
 %   根据配置文件中的站点位置信息，批量生成不同位置、不同距离的Bellhop环境文件
 %
+% [统一入口说明]
+% Purpose:      按站点×距离组合生成 BELLHOP 环境模板五件套
+% Inputs:       data/OriginEnvPack/Config*.mat（脚本内 ConfigName 手改切换海域）
+%               data/OceanData/{ETOPO2022.mat, woa23_00..16.mat}
+% Outputs:      data/OriginEnvPack/{Zone}/ENVn/Rrn/EnvTemplate/ENV_*.{env,bty,ssp,trc,brc}
+% Dependencies: function/{load_data, coord_proc, FileMaker}.m
+% Pipeline:     步骤 2/6（ConfigMaker → A1 → A2 → A3 → CallBell → A4 → A5）
+% 运行方式:     必须在 MATLAB Desktop 中将本文件作为活动文件运行（active-editor 自定位）
+%
 % 功能说明:
 %   1. 加载ETOPO地形数据和WOA23声速剖面数据
 %   2. 读取站点配置文件（Config.mat）

@@ -26,11 +26,12 @@ cd(pathstr);
 
 % 添加函数路径
 addpath(fullfile(pathstr, '..', 'function'));
-% 添加 Bellhop 读取函数路径 (如果需要)
-bellhop_func_path = fullfile(pathstr, '..', '..', 'underwateracoustic', 'bellhop_fundation', 'function');
-if exist(bellhop_func_path, 'dir')
-    addpath(bellhop_func_path);
-end
+% [2026-08 Phase 3A] 移除了对 underwateracoustic/bellhop_fundation/function 的 addpath：
+%   该目录与 UASA function/ 存在 8 个同名分歧函数（RefCoeBw/coord_proc/get_env/load_data/
+%   get_bathm/plotshd/write_ssp/caxisrev），且 addpath 前置会使旧版遮蔽 UASA 权威实现；
+%   经调用图审计，Eddy 脚本未使用该外部目录的任何独有函数（bellhop 经 CallBell 二进制
+%   system() 调用）。唯一受影响调用点 coord_proc(azi=0) 新旧实现输出 bit 级一致（已验证），
+%   故移除后数值行为不变，仅消除函数解析的不确定性。审计详见 doc/FUNCTION_ARCHITECTURE.md。
 
 %% 设置计算参数
 fprintf('===== 设置计算参数 =====\n');

@@ -24,9 +24,9 @@ clear tmp index;
 
 % 添加路径
 addpath(pathstr);
-% 添加项目函数路径
-project_root = fileparts(pathstr);  % UASignalAugmentor 根目录
-addpath(fullfile(project_root, 'function'));
+% 添加项目函数路径（先入路径，再用 helper 解析根目录）
+addpath(fullfile(fileparts(pathstr), 'function'));   % <root>/function
+project_root = uasa_project_root();  % 等价于原 fileparts(pathstr) 推导
 
 %% 路径设置
 ConfigOutputPath  = fullfile(project_root, 'data', 'Eddy');
