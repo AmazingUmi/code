@@ -2,6 +2,17 @@
 % A3ENVDUPLICATOR 环境文件频率扩展工具
 %   读取信号提取的频率成分，为每个频率复制并修改Bellhop环境文件
 %
+% [统一入口说明]
+% Purpose:      按 A1 频率集合复制环境模板并逐频率重算反射系数
+% Inputs:       data/processed/Analy_freq_all.mat + Config*.mat（ConfigName 手改）
+%               + A2 生成的 ENV_* 模板
+% Outputs:      EnvTemplate/test_{i}.{env,bty,ssp,trc,brc} × N 频率
+%               env_files_list.txt（CallBell 协议输入）
+%               data/OriginEnvPack/ENVall_files_YYYYMMDD.tar.gz（传输用压缩包）
+% Dependencies: function/FreqDuplicator.m（内部调用 ReCoeTop/RefCoeBw/get_boundary_speed）
+% Pipeline:     步骤 3/6（ConfigMaker → A1 → A2 → A3 → CallBell → A4 → A5）
+% 运行方式:     必须在 MATLAB Desktop 中将本文件作为活动文件运行（active-editor 自定位）
+%
 % 工作流程说明:
 %   本脚本是信号增强处理链的第3步，配合A1和A2脚本使用：
 %   A1_WavTransformer  -> 提取音频信号的频率成分

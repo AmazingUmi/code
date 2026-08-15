@@ -2,6 +2,14 @@
 % CONFIGMAKER 海洋声学环境配置文件生成器
 %   用于配置水声传播计算所需的真实海洋环境参数，包括站点位置、声源参数和计算设置
 %
+% [统一入口说明]
+% Purpose:      生成 Site_loc/Source/Cal 三结构体配置，供 A2/A3/A5 使用
+% Inputs:       无文件输入；站点表与全部参数硬编码于本脚本（ZoneName 手改切换海域）
+% Outputs:      data/OriginEnvPack/Config{Shallow|Transition|Deep}.mat
+% Dependencies: 无 function/ 依赖（独立脚本）
+% Pipeline:     步骤 0/6（ConfigMaker → A1 → A2 → A3 → CallBell → A4 → A5）
+% 运行方式:     必须在 MATLAB Desktop 中将本文件作为活动文件运行（active-editor 自定位）
+%
 % 功能说明:
 %   1. 定义浅海、过渡区、深海三种海域的站点位置和接收参数
 %   2. 配置声源参数（位置、频率、时间索引等）

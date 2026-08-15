@@ -2,6 +2,15 @@
 % A5RECSIGSYNTHESIZER 接收信号合成工具
 %   基于Bellhop到达结构和原始信号频率成分，合成不同海洋环境下的接收信号
 %
+% [统一入口说明]
+% Purpose:      到达结构 × 源信号频谱 → 各接收深度时域信号
+% Inputs:       Rrn/ENV_ARR_less.mat（A4 产出）
+%               data/processed/{Class}_*.mat + Analy_freq_all.mat（A1 产出）
+% Outputs:      Rrn/NewSig/{signal}_Rd_{depth}_new.mat — TargSig/TargT
+% Dependencies: function/SignalPatchGenerator.m（内部调用 TargSigGenerator→SigGenerateTD）
+% Pipeline:     步骤 5/6（ConfigMaker → A1 → A2 → A3 → CallBell → A4 → A5）
+% 运行方式:     必须在 MATLAB Desktop 中将本文件作为活动文件运行（active-editor 自定位）
+%
 % 工作流程说明:
 %   本脚本是信号增强处理链的第5步，配合A1-A4脚本使用：
 %   A1_WavTransformer  -> 提取音频信号的频率成分
