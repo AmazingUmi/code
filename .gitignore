@@ -2,6 +2,7 @@
 __pycache__/
 *.py[cod]
 *.asv
+._*
 
 # Visual Studio IDE caches / compiler intermediates (cpp/ legacy experiments only).
 # NOTE: matlab/UASignalAugmentor/CallBell/ binaries are intentional runtime
