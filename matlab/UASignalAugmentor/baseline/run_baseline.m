@@ -29,8 +29,8 @@ function run_baseline(label)
 
 if nargin < 1, label = 'run1'; end
 
-root = fileparts(fileparts(mfilename('fullpath')));   % UASignalAugmentor/
-addpath(fullfile(root, 'function'));
+addpath(fullfile(fileparts(mfilename('fullpath')), 'function'));  % <root>/function
+root = uasa_project_root();   % 等价于原 fileparts(fileparts(...)) 推导
 
 workroot = fullfile(tempdir, 'opencode', 'uasa_baseline');
 work = fullfile(workroot, label);
