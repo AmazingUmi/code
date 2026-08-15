@@ -29,7 +29,8 @@ function run_baseline(label)
 
 if nargin < 1, label = 'run1'; end
 
-addpath(fullfile(fileparts(mfilename('fullpath')), 'function'));  % <root>/function
+here = fileparts(mfilename('fullpath'));              % <root>/baseline
+addpath(fullfile(fileparts(here), 'function'));       % <root>/function
 root = uasa_project_root();   % 等价于原 fileparts(fileparts(...)) 推导
 
 workroot = fullfile(tempdir, 'opencode', 'uasa_baseline');

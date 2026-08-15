@@ -1,5 +1,5 @@
 # UASA 行为基线报告 — run2
-- 运行时间: 2026-08-15 20:49:45
+- 运行时间: 2026-08-15 20:53:33
 - 本脚本目录: /Users/luyiyang/Database/code/matlab/UASignalAugmentor/baseline
 - 临时工作目录(仓库外): /private/var/folders/md/dbgxkf7n4dz7g1hkk2_pw9040000gn/T/opencode/uasa_baseline/run2
 
@@ -100,10 +100,10 @@
   (二进制 rpath 指向的 ~/miniconda3/lib/{libomp,libgfortran.5}.dylib 在本机不存在 → 环境漂移，属环境依赖非仓库缺陷)
 - BellParallelMac 退出码=0
     切换到工作目录: /private/var/folders/md/dbgxkf7n4dz7g1hkk2_pw9040000gn/T/opencode/uasa_baseline/run2/Deep/ENV1/Rr1/EnvTemplate
-    dyld[30090]: Library not loaded: @rpath/libgfortran.5.dylib
+    dyld[32832]: Library not loaded: @rpath/libgfortran.5.dylib
       Referenced from: <1348126F-DF1D-33CE-ADBA-B4EB09D120A1> /Users/luyiyang/Database/code/matlab/UASignalAugmentor/CallBell/mac/bellhop.exe
       Reason: tried: '/Users/luyiyang/Database/code/matlab/UASignalAugmentor/CallBell/mac/libgfortran.5.dylib' (no such file), '/Users/luyiyang/miniconda3/lib/gcc/arm64-apple-darwin20.0.0/15.1.0/libgfortran.5.dylib' (no such file), '/System/Volumes/Preboot/Cryptexes/OS/Users/luyiyang/miniconda3/lib/gcc/arm64-apple-darwin20.0.0/15.1.0/libgfortran.5.dylib' (no such file), '/Users/luyiyang/miniconda3/lib/libgfortran.5.dylib' (no such file), '/System/Volumes/Preboot/Cryptexes/OS/Users/luyiyang/miniconda3/lib/libgfortran.5.dylib' (no such file), '/Users/luyiyang/Database/code/matlab/UASignalAugmentor/CallBell/mac/libgfortran.5.dylib' (no such file), '/Users/luyiyang/miniconda3/lib/gcc/arm64-apple-darwin20.0.0/15.1.0/libgfortran.5.dylib' (no such file), '/System/Volumes/Preboot/Cryptexes/OS/Users/luyiyang/miniconda3/lib/gcc/arm64-apple-darwin20.0.0/15.1.0/libgfortran.5.dylib' (no such file), '/Users/luyiyang/miniconda3/lib/libgfortran.5.dylib' (no such file), '/System/Volumes/Preboot/Cryptexes/OS/Users/luyiyang/miniconda3/lib/libgfortran.5.dylib' (no such file), '/usr/local/lib/libgfortran.5.dylib' (no such file), '/usr/lib/libgfortran.5.dylib' (no such file, not in dyld cache)
-    dyld[30091]: Library not loaded: @rpath/libgfortran.5.dylib
+    dyld[32833]: Library not loaded: @rpath/libgfortran.5.dylib
       Referenced from: <1348126F-DF1D-33CE-ADBA-B4EB09D120A1> /Users/luyiyang/Database/code/matlab/UASignalAugmentor/CallBell/mac/bellhop.exe
 - 生成 .arr 文件数=0
 - 回退: 直接调用 bellhop.exe（等价调用约定）
