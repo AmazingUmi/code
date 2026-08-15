@@ -1,5 +1,7 @@
 # ✅ FrequencyAnalyzer 模块完成总结
 
+> **⚠️ 历史快照（historical / stale）**：本文档写作时的状态记录。其中声称的 `tests/test_frequency_analyzer.py`、`modules/README_FrequencyAnalyzer.md` 等文件在当前仓库中**并不存在**；`frequency_analyzer.py` 现为 `A1_SignalAnalyzer.py`。以实际文件与 README 为准。
+
 ## 📦 已完成的文件
 
 ### 1. 核心模块

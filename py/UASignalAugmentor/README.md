@@ -1,157 +1,54 @@
-# UASignalAugmentor
+# UASignalAugmentor (Python)
 
-**水声信号处理与数据集生成系统 (Underwater Acoustic Signal Augmentation)**
+**⚠️ Partial port — 部分移植，未完成**
 
-基于物理建模的船舶识别数据集生成工具，从MATLAB项目转换而来。
+本目录是 MATLAB 项目 `matlab/UASignalAugmentor/`（权威实现）的 Python 部分移植。行为冲突时以 MATLAB 实现为准。当前**没有** `main.py`、CLI、`tests/`；请以实际文件为准，不要按任何"计划结构"创建空壳模块。
 
----
-
-## 📁 项目结构
+## 当前实际结构
 
 ```
 UASignalAugmentor/
-├── modules/                      # 核心处理模块（业务逻辑）
-│   ├── __init__.py
-│   ├── frequency_analyzer.py     # A1: 音频频率分析模块
-│   ├── frequency_filter.py       # A2: 频率成分筛选模块
-│   ├── env_generator.py          # A3: BELLHOP环境文件生成模块
-│   ├── arrival_reader.py         # A4: 声场计算结果读取模块
-│   ├── signal_reconstructor.py   # A5: 接收信号重构模块
-│   ├── spectrogram_builder.py    # A6: 三通道谱图生成模块
-│   ├── validation.py             # B系列: 验证与对比分析
-│   ├── augmentation.py           # C系列: 数据增强（噪声等）
-│   └── dataset_organizer.py      # D系列: 数据集划分与组织
-│
-├── utils/                        # 底层工具函数（技术实现）
-│   ├── __init__.py
-│   ├── signal_processing.py      # 信号处理基础函数
-│   ├── multipath_synthesis.py    # 多径信号合成算法
-│   ├── spectrogram_generator.py  # 谱图生成算法
-│   ├── io_utils.py               # 文件I/O工具
-│   └── config_loader.py          # 配置加载器
-│
-├── cli/                          # 命令行接口
-│   ├── __init__.py
-│   └── commands.py               # CLI命令定义
-│
-├── config/                       # 配置文件
-│   ├── config.yaml               # 主配置文件
-│   └── paths.yaml                # 路径配置
-│
-├── tests/                        # 单元测试
-│   ├── test_signal_processing.py
-│   ├── test_multipath_synthesis.py
-│   └── test_spectrogram.py
-│
-├── data/                         # 数据目录
-│   ├── raw/                      # 原始音频
-│   ├── processed/                # 处理后的频率数据
-│   ├── signals/                  # 重构信号
-│   └── spectrograms/             # 生成的谱图
-│
-├── docs/                         # 文档
-│   └── API.md                    # API文档
-│
-├── logs/                         # 日志输出
-│
-├── output/                       # 最终输出
-│   ├── train/                    # 训练集
-│   ├── val/                      # 验证集
-│   └── test/                     # 测试集
-│
-├── main.py                       # 主入口程序
-├── README.md                     # 项目说明
-├── requirements.txt              # 依赖包列表
-└── .gitignore                    # Git忽略文件
-
+├── modules/
+│   ├── A1_SignalAnalyzer.py    # A1: 音频频率分析
+│   ├── A2_EnvGenerator.py      # A2/A3: BELLHOP 环境文件生成（基于旧版 arr_test 实现）
+│   └── B1_DataPreprocess.py    # B1: ETOPO/WOA23 预处理（netCDF → npz）
+├── utils/
+│   ├── io_utils.py             # JSON/pickle I/O
+│   ├── env_processor.py        # ETOPO/WOA 加载、坐标/声速处理
+│   └── bellhop_writer.py       # .env/.bty/.ssp/.trc/.brc 写入
+├── examples/                   # ★ 当前唯一运行入口
+│   ├── example_frequency_analyzer.py
+│   ├── example_env_generator.py
+│   └── example_data_preprocess.py
+├── config/*.json               # 注意：含失效的 Windows G:/ 路径，使用前必须覆盖
+├── docs/                       # 设计文档（部分为历史快照，已过时）
+├── data/                       # 输出占位目录
+└── requirements.txt            # numpy / soundfile / tqdm
 ```
 
----
+## 运行方式
 
-## 🚀 快速开始
-
-### 安装依赖
 ```bash
 pip install -r requirements.txt
+python examples/example_frequency_analyzer.py
 ```
 
-### 运行流程
-```bash
-# 方式1: 运行完整流程
-python main.py pipeline --all
+示例脚本通过 `sys.path.insert(0, project_root)` 后以 `from modules... import` / `from utils... import` 扁平导入（无包安装步骤）。
 
-# 方式2: 运行单个模块
-python main.py run frequency-analyzer --input data/raw/ --output data/processed/
-python main.py run frequency-filter --input data/processed/ --output data/processed/
-python main.py run env-generator --input data/processed/ --output envfiles/
-# ...
+## 与 MATLAB 权威实现的对齐状态
 
-# 方式3: Python API调用
-from modules import FrequencyAnalyzer, FrequencyFilter
-from pipeline import Pipeline
+| 阶段 | 状态 |
+|---|---|
+| A1 频率分析 | 已移植（`A1_SignalAnalyzer.py`） |
+| A2/A3 环境文件生成 | **基于旧版 `matlab/arr_test` 脚本（`A22origin_ENVmake.m` / `A3envfilmade.m`）移植，与当前 MATLAB `A2ENVmaker.m` / `A3ENVDuplicator.m` 尚未 behaviorally aligned**（缺少按频率重算 .trc/.brc 反射系数等） |
+| B1 数据预处理 | 已移植（`B1_DataPreprocess.py`） |
+| A4/A5 及后续 | 未移植 |
 
-# 创建流水线
-pipeline = Pipeline(config='config/config.yaml')
-pipeline.run_all()  # 执行全部流程
+## 已知问题
 
-# 或者单独调用模块
-analyzer = FrequencyAnalyzer(config)
-result = analyzer.process(input_path='data/raw/')
-```
+- `config/*.json` 内含失效 Windows `G:/` 路径，运行前必须修改或覆盖。
+- `docs/PROJECT_STATUS.md`、`docs/CONFIG_DESIGN.md`、`modules/COMPLETION_SUMMARY.md` 为阶段性历史快照，其中描述的部分文件（如 `tests/`、`frequency_analyzer.py`）并不存在。
 
----
+## 历史
 
-## 📊 数据流程
-
-```
-原始音频 (data/raw/)
-    ↓ [A1: 频率分析]
-频率数据 (data/processed/)
-    ↓ [A2: 频率筛选]
-筛选后频率 (data/processed/)
-    ↓ [A3: 环境文件生成]
-BELLHOP .env文件
-    ↓ [C++并行计算]
-声场结果 .arr文件
-    ↓ [A4: 多径参数提取]
-多径参数 (data/processed/)
-    ↓ [A5: 信号重构]
-接收信号 (data/signals/)
-    ↓ [A6: 谱图生成]
-三通道谱图 (data/spectrograms/)
-    ↓ [D2: 数据集划分]
-训练集/验证集/测试集 (output/)
-```
-
----
-
-## 🛠️ 技术栈
-
-- **Python 3.9+**
-- **NumPy**: 数值计算
-- **SciPy**: 信号处理
-- **Librosa**: 音频分析
-- **Pillow**: 图像处理
-- **Joblib**: 并行计算
-
----
-
-## 📝 待完成
-
-- [ ] 工具函数实现
-- [ ] 主流程脚本转换
-- [ ] 单元测试编写
-- [ ] 配置文件创建
-- [ ] 性能优化
-
----
-
-## 📄 许可证
-
-MIT License
-
----
-
-## 👥 贡献者
-
-转换自MATLAB项目: `G:\code\matlab\arr_test`
+转换自 MATLAB 项目 `matlab/arr_test`（现已由 `matlab/UASignalAugmentor` 取代）；转码计划见 `matlab/arr_test/项目总结与Python转码计划.md`。
