@@ -42,7 +42,7 @@ cd(pathstr);
 | 目录 | 内容 |
 |---|---|
 | `function/` | 共享函数库（39 个：信号/环境/Bellhop IO/到达结构/合成/绘图），单一 `addpath` 入口 |
-| `Eddy/` | 涡旋变体（EXTRA_EddyAnalyzer / EddyComparison，及其参数配置与 convert_munk_ssp） |
+| `Eddy/` | 涡旋变体（EXTRA_EddyAnalyzer / EddyComparison，及其参数配置与 convert_munk_ssp）。仅依赖 `function/` 与 `CallBell/`——不依赖 `underwateracoustic/`（其历史 addpath 已于 2026-08 移除，避免同名函数遮蔽，见 `doc/FUNCTION_ARCHITECTURE.md`） |
 | `Plot/` | 频率筛选有效性验证（FilteredFreqVerif） |
 | `ref/` | 参考变体（TargSigGeneratorGPU，未被主流程调用） |
 | `baseline/` | 行为基线（Phase 2A，回归验证用，见 `doc/BEHAVIOR_BASELINE.md`） |

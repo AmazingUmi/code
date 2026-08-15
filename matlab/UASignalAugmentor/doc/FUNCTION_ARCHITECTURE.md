@@ -43,7 +43,18 @@
 3. **dead-code 候选**（仅登记不删）：`SigGenerateFD`、`read_arrivals_bin`；`ref/TargSigGeneratorGPU`（无调用者的历史参考实现）。`read_shd_bin` 经 `read_shd` 内部分派仍可达，非 dead。
 4. **global 状态**：仅 `plotray`/`plotshd` 使用 `global units`（BELLHOP 官方读取惯例），visualization 局部，不影响主流程数值。
 5. **重复度评估**：`FileMaker` vs `FileMakerIdeal` 写入序列同构（env/bty/ssp/trc/brc 调用次序一致），若未来合并需以行为基线逐字节对照（属 Phase 3+ 之外的独立决策）。
-6. **名称遮蔽**：`sound_speed`、`write_env` 等名称在 `underwateracoustic/bellhop_fundation/function`（EddyComparison_Config 会 addpath 该外部目录）中存在同名函数——Eddy 场景下存在**跨目录遮蔽风险**（E-unknown 项，登记；主流程不受影响，因主流程不加载该外部路径）。
+6. **名称遮蔽（Phase 3A 已消除）**：`underwateracoustic/bellhop_fundation/function` 与 UASA `function/` 存在 16 个同名函数，其中 **8 个为分歧实现（C 类）**：
+   - `RefCoeBw`（外部版含掠角 1e-6 极小值处理，数值不同）
+   - `coord_proc`（cosd/atan2d vs 重构版；azi=0 调用形态下输出 bit 级一致，已实测）
+   - `get_env` / `load_data` / `get_bathm`（UASA 为 WOA23 新管线，外部为旧版）
+   - `plotshd`（UASA 版设置 `units='km'`，外部版不设置 → global units 行为不同）
+   - `write_ssp`（UASA 版启用 rkm 对称填充，外部版被注释）
+   - `caxisrev`（UASA 版多 drawnow，非数值差异）
+   另 8 个完全相同（read_shd/asc/bin、sound_speed、write_bell/bty/env、equally_spaced）。
+
+   **历史风险（实测 `which -all`）**：`EddyComparison_Config.m` 曾 addpath 该外部目录（前置优先），其会话内所有同名函数解析到外部旧版；EddyComparison.m 自身 addpath 再前置而侥幸回到 UASA 版——**同一函数在不同运行顺序下解析到不同实现**。
+
+   **修复（2026-08，Phase 3A）**：调用图审计证实 Eddy 脚本未使用外部目录任何独有函数（bellhop 经 CallBell 二进制 system() 调用），故移除 `EddyComparison_Config.m` 中的外部 addpath。唯一受影响调用点 `coord_proc(azi=0)` 新旧输出 bit 级一致（修复无数值变化），函数解析自此确定（恒为 UASA 权威版）。回归测试：`baseline/eddy_path_check.m`。
 
 ## 候选模块划分（对应 FUNCTION_MAP.md 六分类）
 
